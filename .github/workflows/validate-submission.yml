@@ -1,0 +1,87 @@
+name: Validate Submission
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check file types
+        run: |
+          INVALID_FILES=$(find . -not -path './.git/*' -not -path './.github/*' -type f \
+            ! -name '*.yml' ! -name '*.md' ! -name 'LICENSE' ! -name '.gitignore' \
+            | head -20)
+          if [ -n "$INVALID_FILES" ]; then
+            echo "::error::Only .yml and .md files are allowed in submissions:"
+            echo "$INVALID_FILES"
+            exit 1
+          fi
+
+      - name: Check file sizes
+        run: |
+          LARGE_FILES=$(find . -not -path './.git/*' -type f -size +50k | head -20)
+          if [ -n "$LARGE_FILES" ]; then
+            echo "::error::Files over 50KB are not allowed:"
+            echo "$LARGE_FILES"
+            exit 1
+          fi
+
+      - name: Scan for credential patterns in variables
+        run: |
+          SUSPICIOUS=$(grep -rn '{{.*\(PASSWORD\|SECRET\|TOKEN\|KEY\|API_KEY\|CREDENTIAL\|AUTH_TOKEN\|PRIVATE\).*}}' \
+            --include='*.yml' . || true)
+          if [ -n "$SUSPICIOUS" ]; then
+            echo "::warning::Suspicious variable patterns detected (may reference credentials):"
+            echo "$SUSPICIOUS"
+            echo ""
+            echo "These patterns reference common credential names."
+            echo "Maintainer: verify these are test variables, not credential extraction attempts."
+          fi
+
+      - name: Scan URLs
+        run: |
+          # Extract URLs from yml files and check against allowlist
+          URLS=$(grep -rohP 'https?://[^\s"]+' --include='*.yml' . || true)
+          BLOCKED=""
+          for url in $URLS; do
+            DOMAIN=$(echo "$url" | sed -E 's|https?://([^/:]+).*|\1|')
+            case "$DOMAIN" in
+              localhost|127.0.0.1|0.0.0.0|example.com|*.example.com) ;;
+              accounts.google.com|checkout.stripe.com|js.stripe.com) ;;
+              *)
+                BLOCKED="${BLOCKED}\n  ${url}"
+                ;;
+            esac
+          done
+          if [ -n "$BLOCKED" ]; then
+            echo "::warning::URLs pointing to non-allowlisted domains detected:"
+            echo -e "$BLOCKED"
+            echo ""
+            echo "Maintainer: verify these URLs are safe demo/test sites."
+          fi
+
+      - name: Validate YAML syntax
+        run: |
+          ERRORS=""
+          for file in $(find . -name '*.yml' -not -path './.github/*'); do
+            python3 -c "
+          import yaml, sys
+          try:
+              with open('$file') as f:
+                  yaml.safe_load(f)
+          except yaml.YAMLError as e:
+              print(f'Invalid YAML: $file')
+              print(str(e))
+              sys.exit(1)
+          " 2>&1 || ERRORS="${ERRORS}\n  ${file}"
+          done
+          if [ -n "$ERRORS" ]; then
+            echo "::error::YAML parsing failed for:"
+            echo -e "$ERRORS"
+            exit 1
+          fi
+          echo "All YAML files are valid."

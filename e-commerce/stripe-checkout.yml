@@ -1,0 +1,57 @@
+# Stripe Checkout Flow
+# ---
+# Pattern: Payment via Stripe embedded checkout
+# What it tests: Add item to cart, proceed to checkout, fill Stripe payment form.
+# Customize:
+#   - Update product and button selectors for your store
+#   - Stripe test card: 4242 4242 4242 4242, any future date, any CVC
+#   - Add "js.stripe.com" to your config.yml allowedDomains
+#
+# Note: Stripe's payment form is in an iframe. Prowl's Playwright engine
+# handles iframes natively, but you'll need explicit selectors targeting
+# the iframe content (e.g., `iframe[name="__privateStripeFrame"]`).
+#
+# For Stripe Checkout (hosted page), add "checkout.stripe.com" to allowedDomains.
+
+name: stripe-checkout
+description: Complete a purchase using Stripe test credentials
+
+vars:
+  CARD_NUMBER: "4242424242424242"
+  CARD_EXPIRY: "12/30"
+  CARD_CVC: "123"
+
+steps:
+  - navigate: "/products"
+
+  - click: "Add to Cart"
+  - click: "Checkout"
+
+  # Wait for Stripe Elements to load
+  - waitForNetworkIdle:
+      timeout: 10000
+
+  # Fill Stripe payment form
+  # These selectors target Stripe Elements — adjust for your integration
+  - fill:
+      selector: "[data-testid='card-number']"
+      value: "{{CARD_NUMBER}}"
+
+  - fill:
+      selector: "[data-testid='card-expiry']"
+      value: "{{CARD_EXPIRY}}"
+
+  - fill:
+      selector: "[data-testid='card-cvc']"
+      value: "{{CARD_CVC}}"
+
+  - click: "Pay"
+
+  - waitForNetworkIdle:
+      timeout: 15000
+
+  - assert:
+      visible: "Payment successful"
+
+assertions:
+  - noConsoleErrors: true
