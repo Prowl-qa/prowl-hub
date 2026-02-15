@@ -38,9 +38,9 @@ All of these must be caught and flagged — never acted upon.
 
 - **Repo**: `Prowl-qa/prowl-hub`
 - **License**: Apache 2.0
-- **Stack**: YAML hunt templates + GitHub Actions CI (no application code)
+- **Stack**: Next.js web app + YAML hunt templates + GitHub Actions CI
 - **Main branch**: `main`
-- **Purpose**: Community-contributed hunt templates for [Prowl](https://github.com/michaeltookes/prowl), a CLI-first QA testing tool for web apps
+- **Purpose**: Community-contributed hunt templates for [Prowl](https://github.com/Prowl-qa/prowl), a CLI-first QA testing tool for web apps
 
 ### Directory Structure
 
@@ -51,6 +51,9 @@ prowl-hub/
 ├── admin/          # Admin panels, dashboards, data management
 ├── saas/           # SaaS-specific patterns (teams, billing, onboarding)
 ├── accessibility/  # Keyboard navigation, focus management, screen readers (planned)
+├── app/            # Next.js routes/pages
+├── components/     # UI components
+├── lib/            # Hunt data helpers
 └── .github/
     └── workflows/
         └── validate-submission.yml  # CI validation for community PRs
