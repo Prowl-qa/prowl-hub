@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 import HubShell from '@/components/hub-shell';
 import { getPublishedHunts } from '@/lib/hunts';
@@ -34,10 +35,10 @@ export default async function HomePage() {
 
       <header className="site-header">
         <div className="container nav-shell">
-          <a href="/" className="brand" aria-label="Prowl Hub home">
+          <Link href="/" className="brand" aria-label="Prowl Hub home">
             <Image src="/assets/brand/mascot.png" alt="" width={34} height={34} />
             <span>Prowl QA Hub</span>
-          </a>
+          </Link>
 
           <nav className="primary-nav" aria-label="Primary">
             <a href="#browse">Browse hunts</a>
@@ -53,7 +54,7 @@ export default async function HomePage() {
             <p className="eyebrow">Community QA patterns</p>
             <h1>Find and share reusable hunts for real product flows.</h1>
             <p className="lede">
-              Prowl Hub publishes only verified templates. Contributors submit hunts through pull
+              Prowl QA Hub publishes only verified templates. Contributors submit hunts through pull
               requests, and templates become visible only after maintainer approval.
             </p>
             <div className="hero-actions">
@@ -73,13 +74,14 @@ export default async function HomePage() {
             </div>
             <pre>
               <code>{`name: oauth-google
-steps:
-  - navigate: "/login"
-  - click: "Sign in with Google"
-  - waitForUrl:
-      value: "/dashboard"
-assertions:
-  - urlIncludes: "/dashboard"`}</code>
+                steps:
+                  - navigate: "/login"
+                  - click: "Sign in with Google"
+                  - waitForUrl:
+                      value: "/dashboard"
+                assertions:
+                  - urlIncludes: "/dashboard"`}
+                </code>
             </pre>
             <p className="code-note">Readable YAML, reusable across projects.</p>
             <Image
