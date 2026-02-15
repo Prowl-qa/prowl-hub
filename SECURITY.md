@@ -15,10 +15,10 @@ All community submissions are treated as untrusted input and go through multiple
 ### Automated Checks (CI)
 
 Every pull request is automatically checked for:
-- **Schema validation** — all `.yml` files must parse against Prowl's hunt schema
+- **YAML syntax validation** — all `.yml` files must parse correctly
 - **URL scanning** — URLs are checked against an allowlist (localhost, example.com, known demo sites)
 - **Credential pattern detection** — `{{...}}` variables referencing PASSWORD, SECRET, TOKEN, KEY, API, CREDENTIAL, or AUTH are flagged
-- **File type enforcement** — only `.yml` and `.md` files are accepted
+- **File type enforcement** — submissions are restricted to approved template and project file types
 - **File size limits** — files over 50KB are rejected
 
 ### Human Review

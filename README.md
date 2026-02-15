@@ -1,89 +1,217 @@
 # Prowl Hub
 
-Community-contributed hunt templates for [Prowl](https://github.com/Prowl-qa/prowl) plus a web interface for discovering and submitting hunts.
+Community-driven hunt templates for [Prowl](https://github.com/Prowl-qa/prowl), plus a web interface for discovering, previewing, downloading, and contributing hunts.
 
-## What is this?
+## What Prowl Hub Is
 
-Prowl Hub is a verified hunt library. End users can browse reusable YAML templates, preview raw content, and download hunts into `.prowl/hunts/`.
+Prowl Hub is a central library of reusable YAML hunts that teams can use in their own projects.  
+The hub is designed around one core trust rule:
 
-All visible hunts are verified: a hunt appears in the hub only after pull-request review and maintainer approval.
+**Only verified hunts are published.**
 
-## Local Development
+A hunt appears in the live catalog only after a pull request is reviewed and approved by maintainers.
 
-```bash
-npm install
-npm run dev
-```
+## Core Principles
 
-Open `http://localhost:3000`.
+- Verified-only catalog
+- Pull-request-first publishing
+- Security-first review for untrusted YAML
+- Clear contributor UX
+- Reusable hunt patterns across app domains
 
-## Brand Assets
+## Current Capabilities
 
-Drop official assets into `public/assets/brand/`.
+- Browse hunts by category
+- Search/filter hunts
+- Preview raw YAML in-app
+- Download hunt files directly
+- Visual status badges:
+  - `Verified` for published hunts
+  - `New` for recently updated hunts (based on file modification time)
+- Submit flow that opens a prefilled GitHub file creation flow in `Prowl-qa/prowl-hub`, then contributor completes PR workflow
 
-See `public/assets/brand/README.md` for recommended filenames.
+## Tech Stack
 
-## Browse Templates
+- Next.js (App Router)
+- TypeScript
+- React
+- File-backed hunt catalog (YAML from repository directories)
 
-| Category | Template | Description |
-|----------|----------|-------------|
-| **Auth** | [oauth-google.yml](auth/oauth-google.yml) | Google OAuth login flow |
-| **Auth** | [password-reset.yml](auth/password-reset.yml) | Forgot password and reset flow |
-| **E-commerce** | [stripe-checkout.yml](e-commerce/stripe-checkout.yml) | Stripe payment integration |
-| **Admin** | [data-table-filter.yml](admin/data-table-filter.yml) | Filter, sort, and paginate data tables |
-| **SaaS** | [team-invite.yml](saas/team-invite.yml) | Invite team members via email |
-
-## Contributing
-
-We welcome contributions through pull requests.
-
-### Submission Guidelines
-
-1. **One hunt per file** — each `.yml` file should cover a single test pattern.
-2. **Heavy comments** — explain the pattern, customization points, and gotchas.
-3. **Generic selectors** — prefer `data-testid`, placeholder text, or visible labels.
-4. **No secrets** — never include credentials or sensitive data. Use `{{VAR}}` syntax.
-5. **Valid YAML** — templates must parse and pass CI checks.
-
-### Pull Request Process
-
-1. Fork this repository.
-2. Add your hunt file in the matching category directory.
-3. Open a pull request with a clear summary.
-4. CI checks run automatically.
-5. A maintainer reviews and approves.
-6. After merge, the hunt is published in the hub as verified.
-
-### What Gets Checked
-
-Every submission is automatically validated:
-- YAML syntax
-- Suspicious URL/domain usage
-- Suspicious credential variable patterns
-- File size under 50KB
-- Allowed repository file types
-
-## Project Structure
+## Repository Structure
 
 ```text
 prowl-hub/
-├── app/             # Next.js app routes and pages
-├── components/      # UI components
-├── lib/             # Hunt catalog utilities
-├── public/          # Brand assets and static files
-├── auth/            # Authentication hunt templates
-├── e-commerce/      # Commerce hunt templates
-├── admin/           # Admin hunt templates
-├── saas/            # SaaS hunt templates
-└── accessibility/   # Accessibility hunt templates
+├── AGENTS.md                         # Agent operating instructions
+├── app/
+│   ├── api/
+│   │   └── hunts/
+│   │       ├── route.ts              # JSON hunt catalog API
+│   │       └── file/route.ts         # Secure hunt file download API
+│   ├── globals.css                   # Global styling and design tokens
+│   ├── layout.tsx                    # Root layout + fonts/metadata
+│   └── page.tsx                      # Main hub page shell
+├── components/
+│   └── hub-shell.tsx                 # Browse/filter/preview/submit client logic
+├── lib/
+│   └── hunts.ts                      # Hunt loading, metadata extraction, safety guards
+├── public/
+│   └── assets/
+│       └── brand/                    # Brand logos/mascot assets
+├── auth/                             # Hunt templates
+├── admin/                            # Hunt templates
+├── e-commerce/                       # Hunt templates
+├── saas/                             # Hunt templates
+├── accessibility/                    # Hunt templates
+└── .github/workflows/
+    └── validate-submission.yml       # CI validation checks
 ```
 
-## Security
+## Local Development
 
-Community submissions are untrusted input. Review and CI guardrails are required before publication.
+### Prerequisites
 
-See [SECURITY.md](SECURITY.md) for the full policy.
+- Node.js 20+ recommended
+- npm
+
+### Install
+
+```bash
+npm install
+```
+
+### Run
+
+```bash
+npm run dev
+```
+
+Default local URL:
+
+- `http://localhost:3003`
+
+### Production Build
+
+```bash
+npm run build
+npm run start
+```
+
+### Quality Checks
+
+```bash
+npm run lint
+npm run typecheck
+```
+
+## API Endpoints
+
+### `GET /api/hunts`
+
+Returns the current published hunt catalog with metadata for UI rendering.
+
+### `GET /api/hunts/file?path=<category/file.yml>`
+
+Returns/downloads a hunt file if it is in an allowed published directory and has `.yml` extension.  
+Path validation prevents directory traversal and non-template access.
+
+## Verified Publishing Model
+
+1. Contributor proposes a hunt through GitHub PR flow.
+2. CI runs validation checks.
+3. Maintainer reviews the content and security profile.
+4. After approval + merge, the hunt is considered verified and appears in the hub.
+
+There is intentionally **no direct publish API** that bypasses review.
+
+## Contribution Workflow
+
+### From the UI
+
+Use the “Submit” form in the app:
+
+- Fill hunt metadata
+- Paste YAML
+- Confirm checklist
+- Click **Open Pull Request Flow**
+
+This opens a prefilled GitHub file creation page in:
+
+- `https://github.com/Prowl-qa/prowl-hub/new/main`
+
+From there:
+
+1. Commit to a branch
+2. Open PR
+3. Wait for review and merge
+
+### Manual Contribution
+
+1. Fork the repo
+2. Add one `.yml` hunt file to the correct category folder
+3. Open PR with clear description
+4. Address CI and review feedback
+5. Merge after approval
+
+## Hunt Authoring Guidelines
+
+- One hunt pattern per file
+- Use generic selectors and labels
+- Include clear comments and customization notes
+- Never include secrets or credentials
+- Keep files concise and maintainable
+- Prefer realistic, reusable flows
+
+## Security Model
+
+Community hunts are treated as untrusted input.
+
+Key safeguards:
+
+- Review-first workflow
+- Automated CI scanning
+- URL/domain pattern inspection
+- Credential-variable pattern inspection
+- Strict file/path boundaries for downloadable templates
+
+Security docs:
+
+- [`SECURITY.md`](SECURITY.md)
+- [`CLAUDE.md`](CLAUDE.md)
+- [`AGENTS.md`](AGENTS.md)
+
+## CI Validation Summary
+
+`.github/workflows/validate-submission.yml` currently checks:
+
+- Allowed file types only
+- File size limits
+- Suspicious credential-like variable patterns
+- Suspicious URL/domain patterns
+- YAML syntax parsing
+
+## Brand Assets
+
+Put brand files in:
+
+- `public/assets/brand/`
+
+Recommended filenames:
+
+- `logo-mark.svg`
+- `logo-wordmark.svg`
+- `mascot.png`
+- `social-card.png`
+
+See:
+
+- `public/assets/brand/README.md`
+
+## Notes on Visibility and Trust
+
+- All displayed hunts are intended to be verified.
+- `New` is a freshness indicator, not a trust indicator.
+- Unverified submissions should never be visible in public catalog results.
 
 ## License
 
-Apache 2.0 — see [LICENSE](LICENSE).
+Apache 2.0. See [LICENSE](LICENSE).
