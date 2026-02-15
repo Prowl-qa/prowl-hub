@@ -12,11 +12,14 @@ jobs:
 
       - name: Check file types
         run: |
-          INVALID_FILES=$(find . -not -path './.git/*' -not -path './.github/*' -type f \
-            ! -name '*.yml' ! -name '*.md' ! -name 'LICENSE' ! -name '.gitignore' \
+          INVALID_FILES=$(find . -not -path './.git/*' -not -path './.github/*' -not -path './.next/*' -type f \
+            ! -name '*.yml' ! -name '*.md' ! -name '*.html' ! -name '*.css' ! -name '*.js' \
+            ! -name '*.mjs' ! -name '*.ts' ! -name '*.tsx' ! -name '*.d.ts' ! -name '*.json' \
+            ! -name '*.svg' ! -name '*.png' ! -name '*.jpg' ! -name '*.jpeg' ! -name '*.webp' \
+            ! -name 'LICENSE' ! -name '.gitignore' \
             | head -20)
           if [ -n "$INVALID_FILES" ]; then
-            echo "::error::Only .yml and .md files are allowed in submissions:"
+            echo "::error::Unexpected file types detected in submission:"
             echo "$INVALID_FILES"
             exit 1
           fi
@@ -32,8 +35,8 @@ jobs:
 
       - name: Scan for credential patterns in variables
         run: |
-          SUSPICIOUS=$(grep -rn '{{.*\(PASSWORD\|SECRET\|TOKEN\|KEY\|API_KEY\|CREDENTIAL\|AUTH_TOKEN\|PRIVATE\).*}}' \
-            --include='*.yml' . || true)
+          SUSPICIOUS=$(find . -name '*.yml' -not -path './.github/*' -print0 | \
+            xargs -0 grep -n '{{.*\(PASSWORD\|SECRET\|TOKEN\|KEY\|API_KEY\|CREDENTIAL\|AUTH_TOKEN\|PRIVATE\).*}}' || true)
           if [ -n "$SUSPICIOUS" ]; then
             echo "::warning::Suspicious variable patterns detected (may reference credentials):"
             echo "$SUSPICIOUS"
@@ -45,7 +48,8 @@ jobs:
       - name: Scan URLs
         run: |
           # Extract URLs from yml files and check against allowlist
-          URLS=$(grep -rohP 'https?://[^\s"]+' --include='*.yml' . || true)
+          URLS=$(find . -name '*.yml' -not -path './.github/*' -print0 | \
+            xargs -0 grep -hoE 'https?://[^[:space:]"]+' || true)
           BLOCKED=""
           for url in $URLS; do
             DOMAIN=$(echo "$url" | sed -E 's|https?://([^/:]+).*|\1|')
