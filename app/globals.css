@@ -220,6 +220,16 @@ main {
   overflow: hidden;
 }
 
+.hero-mascot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 150px;
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+}
+
 .hero-code::before {
   content: '';
   position: absolute;
