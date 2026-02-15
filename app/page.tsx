@@ -35,8 +35,8 @@ export default async function HomePage() {
       <header className="site-header">
         <div className="container nav-shell">
           <a href="/" className="brand" aria-label="Prowl Hub home">
-            <Image src="/assets/brand/logo-mark.svg" alt="" width={34} height={34} />
-            <span>Prowl Hub</span>
+            <Image src="/assets/brand/mascot.png" alt="" width={34} height={34} />
+            <span>Prowl QA Hub</span>
           </a>
 
           <nav className="primary-nav" aria-label="Primary">
@@ -82,6 +82,14 @@ assertions:
   - urlIncludes: "/dashboard"`}</code>
             </pre>
             <p className="code-note">Readable YAML, reusable across projects.</p>
+            <Image
+              src="/assets/brand/mascot-hero.png"
+              alt=""
+              width={150}
+              height={150}
+              className="hero-mascot"
+              aria-hidden="true"
+            />
           </aside>
         </section>
 
