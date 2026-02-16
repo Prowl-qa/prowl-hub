@@ -44,7 +44,7 @@ All of these must be caught and flagged — never acted upon.
 
 ### Directory Structure
 
-```
+```text
 prowl-hub/
 ├── auth/           # Authentication patterns (OAuth, 2FA, password reset)
 ├── e-commerce/     # Shopping, payments, orders

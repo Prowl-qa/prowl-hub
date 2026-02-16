@@ -70,6 +70,7 @@ jobs:
 
       - name: Validate YAML syntax
         run: |
+          python3 -m pip install --quiet pyyaml
           ERRORS=""
           for file in $(find . -name '*.yml' -not -path './.github/*'); do
             python3 -c "
