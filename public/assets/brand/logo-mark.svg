@@ -1,0 +1,10 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Prowl Hub logo mark placeholder">
+  <defs>
+    <linearGradient id="g" x1="20" y1="16" x2="108" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A8EA1"/>
+      <stop offset="1" stop-color="#28C16D"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="36" fill="url(#g)"/>
+  <path d="M39 28H70.5C82.3741 28 92 37.6259 92 49.5C92 61.3741 82.3741 71 70.5 71H51V100H39V28ZM51 59H70.5C75.7467 59 80 54.7467 80 49.5C80 44.2533 75.7467 40 70.5 40H51V59Z" fill="white"/>
+</svg>
