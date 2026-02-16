@@ -39,28 +39,40 @@ jobs:
           SUSPICIOUS=$(find . -name '*.yml' -not -path './.github/*' -print0 | \
             xargs -0 grep -n '{{.*\(PASSWORD\|SECRET\|TOKEN\|KEY\|API_KEY\|CREDENTIAL\|AUTH_TOKEN\|PRIVATE\).*}}' || true)
           if [ -n "$SUSPICIOUS" ]; then
-            echo "::warning::Suspicious variable patterns detected (may reference credentials):"
+            echo "::error::Suspicious variable patterns detected (may reference credentials):"
             echo "$SUSPICIOUS"
             echo ""
             echo "These patterns reference common credential names."
             echo "Maintainer: verify these are test variables, not credential extraction attempts."
+            echo "If safe, a maintainer may override this check."
+            exit 1
           fi
 
       - name: Scan URLs
         run: |
+          # Check if a domain is in the allowlist
+          is_allowed_domain() {
+            local domain="$1"
+            case "$domain" in
+              localhost|127.0.0.1|0.0.0.0) return 0 ;;
+              accounts.google.com|checkout.stripe.com|js.stripe.com) return 0 ;;
+            esac
+            # Match example.com and any subdomain (e.g. sub.example.com)
+            if [[ "$domain" == "example.com" || "$domain" =~ \.example\.com$ ]]; then
+              return 0
+            fi
+            return 1
+          }
+
           # Extract URLs from yml files and check against allowlist
           URLS=$(find . -name '*.yml' -not -path './.github/*' -print0 | \
             xargs -0 grep -hoE 'https?://[^[:space:]"]+' || true)
           BLOCKED=""
           for url in $URLS; do
             DOMAIN=$(echo "$url" | sed -E 's|https?://([^/:]+).*|\1|')
-            case "$DOMAIN" in
-              localhost|127.0.0.1|0.0.0.0|example.com|*.example.com) ;;
-              accounts.google.com|checkout.stripe.com|js.stripe.com) ;;
-              *)
-                BLOCKED="${BLOCKED}\n  ${url}"
-                ;;
-            esac
+            if ! is_allowed_domain "$DOMAIN"; then
+              BLOCKED="${BLOCKED}\n  ${url}"
+            fi
           done
           if [ -n "$BLOCKED" ]; then
             echo "::warning::URLs pointing to non-allowlisted domains detected:"
@@ -91,3 +103,69 @@ jobs:
             exit 1
           fi
           echo "All YAML files are valid."
+
+      - name: Validate hunt schema
+        run: |
+          HUNT_DIRS="auth admin e-commerce saas accessibility"
+          ERRORS=""
+          for dir in $HUNT_DIRS; do
+            [ -d "$dir" ] || continue
+            for file in "$dir"/*.yml; do
+              [ -f "$file" ] || continue
+              python3 -c "
+          import yaml, sys
+
+          VALID_STEP_KEYS = {
+              'navigate', 'click', 'wait', 'fill', 'select',
+              'waitForUrl', 'waitForNetworkIdle', 'assert',
+              'runHunt', 'iframe_action',
+          }
+
+          with open('$file') as f:
+              doc = yaml.safe_load(f)
+
+          errors = []
+
+          if not isinstance(doc, dict):
+              errors.append('Document must be a YAML mapping')
+          else:
+              # name: required, non-empty string
+              name = doc.get('name')
+              if not name or not isinstance(name, str):
+                  errors.append('Missing or empty \"name\" field')
+
+              # description: required, non-empty string
+              desc = doc.get('description')
+              if not desc or not isinstance(desc, str):
+                  errors.append('Missing or empty \"description\" field')
+
+              # steps: required, non-empty list
+              steps = doc.get('steps')
+              if not isinstance(steps, list) or len(steps) == 0:
+                  errors.append('Missing or empty \"steps\" field (must be a non-empty list)')
+              else:
+                  for i, step in enumerate(steps):
+                      if not isinstance(step, dict):
+                          errors.append(f'Step {i+1}: must be a mapping, got {type(step).__name__}')
+                          continue
+                      keys = set(step.keys())
+                      unknown = keys - VALID_STEP_KEYS
+                      if unknown:
+                          errors.append(f'Step {i+1}: unrecognized key(s): {unknown}')
+                      if len(keys) == 0:
+                          errors.append(f'Step {i+1}: empty step (no action key)')
+
+          if errors:
+              print(f'Schema errors in $file:')
+              for e in errors:
+                  print(f'  - {e}')
+              sys.exit(1)
+          " 2>&1 || ERRORS="${ERRORS}\n  ${file}"
+            done
+          done
+          if [ -n "$ERRORS" ]; then
+            echo "::error::Hunt schema validation failed for:"
+            echo -e "$ERRORS"
+            exit 1
+          fi
+          echo "All hunt templates pass schema validation."
