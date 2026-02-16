@@ -30,6 +30,7 @@ const CATEGORY_LABELS: Record<HuntCategory, string> = {
 };
 
 const rootDir = process.cwd();
+const HUNTS_ROOT = path.join(rootDir, '.prowlqa', 'hunts');
 const newThresholdMs = 30 * 24 * 60 * 60 * 1000;
 
 function getFieldValue(content: string, key: string) {
@@ -73,7 +74,7 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
   const hunts: HuntRecord[] = [];
 
   for (const category of PUBLISHED_DIRS) {
-    const categoryPath = path.join(rootDir, category);
+    const categoryPath = path.join(HUNTS_ROOT, category);
 
     let files: string[] = [];
     try {
@@ -83,9 +84,9 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
     }
 
     for (const file of files.filter((entry) => entry.endsWith('.yml')).sort()) {
-      const filePath = `${category}/${file}`;
+      const filePath = `.prowlqa/hunts/${category}/${file}`;
       try {
-        const absolutePath = path.join(rootDir, filePath);
+        const absolutePath = path.join(HUNTS_ROOT, category, file);
         const content = await fs.readFile(absolutePath, 'utf8');
         const stats = await fs.stat(absolutePath);
 
@@ -122,14 +123,28 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
 }
 
 export function sanitizePublishedPath(rawPath: string): string | null {
-  const normalized = path.normalize(rawPath).replace(/^([.][.][/\\])+/, '');
-  const resolved = path.resolve(rootDir, normalized);
+  const normalized = path
+    .normalize(rawPath)
+    .replace(/^([.][.][/\\])+/, '')
+    .replace(/^[/\\]+/, '');
 
-  const isAllowedDir = PUBLISHED_DIRS.some((dir) =>
-    resolved.startsWith(path.join(rootDir, dir, path.sep)) || resolved === path.join(rootDir, dir)
-  );
+  const rawSegments = normalized.split(/[\\/]+/).filter(Boolean);
+  const segments =
+    rawSegments[0] === '.prowlqa' && rawSegments[1] === 'hunts' ? rawSegments.slice(2) : rawSegments;
 
-  if (!isAllowedDir || path.extname(resolved) !== '.yml') {
+  if (segments.length < 2) {
+    return null;
+  }
+
+  const [category, ...rest] = segments;
+  if (!PUBLISHED_DIRS.includes(category as HuntCategory)) {
+    return null;
+  }
+
+  const resolved = path.resolve(HUNTS_ROOT, path.join(category, ...rest));
+  const allowedPrefix = path.join(HUNTS_ROOT, category, path.sep);
+
+  if (!resolved.startsWith(allowedPrefix) || path.extname(resolved) !== '.yml') {
     return null;
   }
 
