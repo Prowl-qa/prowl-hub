@@ -1,0 +1,67 @@
+# Stripe Checkout Flow
+# ---
+# Pattern: Payment via Stripe embedded checkout
+# What it tests: Add item to cart, proceed to checkout, fill Stripe payment form.
+# Customize:
+#   - Update product and button selectors for your store
+#   - Stripe test card: 4242 4242 4242 4242, any future date, any CVC
+#   - Add "js.stripe.com" to your .prowlqa/config.yml allowedDomains
+#   - Hunt files live at .prowlqa/hunts/*.yml
+#   - Run artifacts are written to .prowlqa/runs/<timestamp>/
+#
+# Note: Stripe's payment form is in an iframe. Prowl's Playwright engine
+# handles iframes natively, but you'll need explicit selectors targeting
+# the iframe content (e.g., `iframe[name="__privateStripeFrame"]`).
+#
+# For Stripe Checkout (hosted page), add "checkout.stripe.com" to .prowlqa/config.yml allowedDomains.
+
+name: stripe-checkout
+description: Complete a purchase using Stripe test credentials
+
+vars:
+  CARD_NUMBER: "4242424242424242"
+  CARD_EXPIRY: "12/30"
+  CARD_CVC: "123"
+
+steps:
+  - navigate: "/products"
+
+  - click: "Add to Cart"
+  - click: "Checkout"
+
+  # Wait for Stripe Elements to load
+  - waitForNetworkIdle:
+      timeout: 10000
+
+  # Fill Stripe payment form inside the secure iframe
+  - iframe_action:
+      iframeSelector: "iframe[name='__privateStripeFrame']"
+      action: "fill"
+      targetSelector: "[data-testid='card-number']"
+      options:
+        text: "{{CARD_NUMBER}}"
+
+  - iframe_action:
+      iframeSelector: "iframe[name='__privateStripeFrame']"
+      action: "fill"
+      targetSelector: "[data-testid='card-expiry']"
+      options:
+        text: "{{CARD_EXPIRY}}"
+
+  - iframe_action:
+      iframeSelector: "iframe[name='__privateStripeFrame']"
+      action: "fill"
+      targetSelector: "[data-testid='card-cvc']"
+      options:
+        text: "{{CARD_CVC}}"
+
+  - click: "Pay"
+
+  - waitForNetworkIdle:
+      timeout: 15000
+
+  - assert:
+      visible: "Payment successful"
+
+assertions:
+  - noConsoleErrors: true
