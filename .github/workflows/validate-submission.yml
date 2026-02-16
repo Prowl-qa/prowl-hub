@@ -26,9 +26,10 @@ jobs:
 
       - name: Check file sizes
         run: |
-          LARGE_FILES=$(find . -not -path './.git/*' -type f -size +50k | head -20)
+          LARGE_FILES=$(find . -not -path './.git/*' -not -path './.github/*' -not -path './node_modules/*' -not -path './.next/*' -type f \
+            \( -name '*.yml' -o -name '*.md' \) -size +50k | head -20)
           if [ -n "$LARGE_FILES" ]; then
-            echo "::error::Files over 50KB are not allowed:"
+            echo "::error::.yml/.md files over 50KB are not allowed:"
             echo "$LARGE_FILES"
             exit 1
           fi

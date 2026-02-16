@@ -7,11 +7,17 @@ import { readPublishedHunt } from '@/lib/hunts';
 function sanitizeDownloadFilename(rawPath: string): string {
   const fallback = 'download.yaml';
   const base = path.basename(rawPath);
-  const sanitized = base
+  const sanitized = Array.from(
+    base
     .replace(/[\r\n]/g, '')
     .replace(/["']/g, '')
-    .replace(/[\x00-\x1F\x7F]/g, '')
     .replace(/[\\/]/g, '')
+  )
+    .filter((char) => {
+      const code = char.charCodeAt(0);
+      return code > 31 && code !== 127;
+    })
+    .join('')
     .trim();
 
   if (!sanitized || sanitized.length > 120) {

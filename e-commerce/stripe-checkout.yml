@@ -33,19 +33,27 @@ steps:
   - waitForNetworkIdle:
       timeout: 10000
 
-  # Fill Stripe payment form
-  # These selectors target Stripe Elements — adjust for your integration
-  - fill:
-      selector: "[data-testid='card-number']"
-      value: "{{CARD_NUMBER}}"
+  # Fill Stripe payment form inside the secure iframe
+  - iframe_action:
+      iframeSelector: "iframe[name='__privateStripeFrame']"
+      action: "fill"
+      targetSelector: "[data-testid='card-number']"
+      options:
+        text: "{{CARD_NUMBER}}"
 
-  - fill:
-      selector: "[data-testid='card-expiry']"
-      value: "{{CARD_EXPIRY}}"
+  - iframe_action:
+      iframeSelector: "iframe[name='__privateStripeFrame']"
+      action: "fill"
+      targetSelector: "[data-testid='card-expiry']"
+      options:
+        text: "{{CARD_EXPIRY}}"
 
-  - fill:
-      selector: "[data-testid='card-cvc']"
-      value: "{{CARD_CVC}}"
+  - iframe_action:
+      iframeSelector: "iframe[name='__privateStripeFrame']"
+      action: "fill"
+      targetSelector: "[data-testid='card-cvc']"
+      options:
+        text: "{{CARD_CVC}}"
 
   - click: "Pay"
 
