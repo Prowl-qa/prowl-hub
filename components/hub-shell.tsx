@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 
 import type { HuntRecord } from '@/lib/hunts';
 
@@ -42,6 +42,10 @@ export default function HubShell({ hunts }: HubShellProps) {
   const [selectedHunt, setSelectedHunt] = useState<HuntRecord | null>(null);
   const [submitState, setSubmitState] = useState<SubmitState>(null);
   const [copyState, setCopyState] = useState<'idle' | 'done' | 'failed'>('idle');
+
+  useEffect(() => {
+    setCopyState('idle');
+  }, [selectedHunt]);
 
   const categories = useMemo(
     () => [
@@ -113,7 +117,16 @@ export default function HubShell({ hunts }: HubShellProps) {
       return;
     }
 
-    const suggestedFilePath = `${huntCategory}/${huntSlug}.yml`;
+    const validatedCategory = huntCategory.trim();
+    if (!/^[a-zA-Z0-9_-]+$/.test(validatedCategory)) {
+      setSubmitState({
+        kind: 'error',
+        message: 'Invalid category; use only letters, numbers, hyphen or underscore.',
+      });
+      return;
+    }
+
+    const suggestedFilePath = `.prowlqa/hunts/${validatedCategory}/${huntSlug}.yml`;
     const commitMessage = `feat(hunt): add ${huntSlug} template`;
 
     const params = new URLSearchParams({
@@ -143,7 +156,7 @@ export default function HubShell({ hunts }: HubShellProps) {
           </div>
           <p>
             Every card below is verified and safe to reuse. Use filters, inspect raw YAML, and
-            download directly into your `.prowl/hunts/` directory.
+            download directly into your `.prowlqa/hunts/` directory.
           </p>
         </div>
 

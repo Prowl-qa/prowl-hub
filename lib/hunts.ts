@@ -84,31 +84,35 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
 
     for (const file of files.filter((entry) => entry.endsWith('.yml')).sort()) {
       const filePath = `${category}/${file}`;
-      const absolutePath = path.join(rootDir, filePath);
-      const content = await fs.readFile(absolutePath, 'utf8');
-      const stats = await fs.stat(absolutePath);
+      try {
+        const absolutePath = path.join(rootDir, filePath);
+        const content = await fs.readFile(absolutePath, 'utf8');
+        const stats = await fs.stat(absolutePath);
 
-      const name = getFieldValue(content, 'name');
-      const description = getFieldValue(content, 'description');
-      const stepCount = countEntries(extractSection(content, 'steps'));
-      const assertionCount = countEntries(extractSection(content, 'assertions'));
-      const isNew = Date.now() - stats.mtimeMs <= newThresholdMs;
+        const name = getFieldValue(content, 'name');
+        const description = getFieldValue(content, 'description');
+        const stepCount = countEntries(extractSection(content, 'steps'));
+        const assertionCount = countEntries(extractSection(content, 'assertions'));
+        const isNew = Date.now() - stats.mtimeMs <= newThresholdMs;
 
-      hunts.push({
-        id: filePath.replace(/[/.]/g, '-'),
-        title: toDisplayTitle(name, file),
-        name,
-        description,
-        category,
-        categoryLabel: CATEGORY_LABELS[category],
-        filePath,
-        stepCount,
-        assertionCount,
-        updatedAt: stats.mtime.toISOString(),
-        isVerified: true,
-        isNew,
-        content,
-      });
+        hunts.push({
+          id: filePath.replace(/[/.]/g, '-'),
+          title: toDisplayTitle(name, file),
+          name,
+          description,
+          category,
+          categoryLabel: CATEGORY_LABELS[category],
+          filePath,
+          stepCount,
+          assertionCount,
+          updatedAt: stats.mtime.toISOString(),
+          isVerified: true,
+          isNew,
+          content,
+        });
+      } catch (error) {
+        console.warn(`[hunts] Skipping unreadable template "${filePath}"`, error);
+      }
     }
   }
 

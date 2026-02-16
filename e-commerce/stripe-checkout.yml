@@ -5,13 +5,15 @@
 # Customize:
 #   - Update product and button selectors for your store
 #   - Stripe test card: 4242 4242 4242 4242, any future date, any CVC
-#   - Add "js.stripe.com" to your config.yml allowedDomains
+#   - Add "js.stripe.com" to your .prowlqa/config.yml allowedDomains
+#   - Hunt files live at .prowlqa/hunts/*.yml
+#   - Run artifacts are written to .prowlqa/runs/<timestamp>/
 #
 # Note: Stripe's payment form is in an iframe. Prowl's Playwright engine
 # handles iframes natively, but you'll need explicit selectors targeting
 # the iframe content (e.g., `iframe[name="__privateStripeFrame"]`).
 #
-# For Stripe Checkout (hosted page), add "checkout.stripe.com" to allowedDomains.
+# For Stripe Checkout (hosted page), add "checkout.stripe.com" to .prowlqa/config.yml allowedDomains.
 
 name: stripe-checkout
 description: Complete a purchase using Stripe test credentials

@@ -4,15 +4,17 @@
 # What it tests: Initiates Google OAuth, completes sign-in, verifies redirect back.
 # Customize:
 #   - Update the "Sign in with Google" button selector for your app
-#   - Set TEST_GOOGLE_EMAIL and TEST_GOOGLE_PASSWORD in your .prowl/.env
+#   - Set TEST_GOOGLE_EMAIL and TEST_GOOGLE_PASSWORD in your .prowlqa/.env
 #   - Update the post-login redirect URL assertion
 #
 # Note: OAuth flows navigate to external domains (accounts.google.com).
-# You must add "accounts.google.com" to your config.yml allowedDomains:
+# You must add "accounts.google.com" to your .prowlqa/config.yml allowedDomains:
 #   guardrails:
 #     allowedDomains:
 #       - "localhost"
 #       - "accounts.google.com"
+# Hunt files are stored at .prowlqa/hunts/*.yml
+# Run artifacts are stored under .prowlqa/runs/<timestamp>/
 #
 # Warning: Google may show CAPTCHAs or 2FA prompts for automated logins.
 # Consider using `prowl login` to capture auth state interactively first.
