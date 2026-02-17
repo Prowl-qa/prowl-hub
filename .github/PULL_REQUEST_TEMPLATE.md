@@ -13,7 +13,7 @@
 - [ ] File is in the correct category directory
 - [ ] Uses generic selectors (`data-testid`, placeholder text, visible labels)
 - [ ] Contains no hardcoded credentials or secrets
-- [ ] URLs are `localhost`, `example.com`, or allowlisted domains only
+- [ ] URLs are only: `localhost`, `127.0.0.1`, `0.0.0.0`, `example.com` (and any `*.example.com` subdomain), `accounts.google.com`, `checkout.stripe.com`, `js.stripe.com`
 - [ ] Includes helpful comments and customization notes
 - [ ] Has `tags` field with at least one tag
 
