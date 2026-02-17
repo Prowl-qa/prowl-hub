@@ -71,6 +71,19 @@ Each `.yml` hunt file follows this structure:
 
 Selectors must be generic: `data-testid`, placeholder text, visible button labels — never app-specific.
 
+## Related Repos
+
+All Prowl QA repos live at `~/Desktop/Current Projects/Prowl QA/Repositories/`.
+
+| Repo | Purpose | Local Path |
+|------|---------|------------|
+| `Prowl-qa/prowl` | CLI tool (source of truth) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl` |
+| `Prowl-qa/prowl-docs` | Docs site (docs.prowlqa.dev) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl-docs` |
+| `Prowl-qa/prowl-web` | Marketing site (prowlqa.dev) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl-web` |
+| `mtookes/prowl-twitter-bot` | Twitter bot (@prowlqa) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl-twitter-bot` |
+
+**Assets**: `~/Desktop/Current Projects/Prowl QA/Assets/`
+
 ## Backlog Management
 
 This project has a tracked backlog. Use the `update-backlog` skill to look up this repo's backlog file via the repo-to-backlog mapping. If the backlog path is not already in context and the skill mapping is unavailable, ask the user for the path.
