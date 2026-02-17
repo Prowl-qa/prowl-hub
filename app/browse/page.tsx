@@ -13,7 +13,7 @@ export default async function BrowsePage() {
   const hunts = await getPublishedHuntSummaries();
 
   return (
-    <main id="main" className="browse-page container">
+    <section className="browse-page container" aria-label="Browse hunts">
       <div className="section-head">
         <div>
           <p className="eyebrow">Library</p>
@@ -25,9 +25,9 @@ export default async function BrowsePage() {
         </p>
       </div>
 
-      <Suspense>
+      <Suspense fallback={<p className="results-count">Loading hunts...</p>}>
         <BrowseShell hunts={hunts} />
       </Suspense>
-    </main>
+    </section>
   );
 }

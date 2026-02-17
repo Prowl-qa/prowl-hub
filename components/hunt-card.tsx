@@ -1,17 +1,5 @@
 import type { HuntSummary } from '@/lib/hunts';
-
-function toDisplayDate(value: string) {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return '-';
-  }
-
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(parsed);
-}
+import { toDisplayDate } from '@/lib/format';
 
 interface HuntCardProps {
   hunt: HuntSummary;

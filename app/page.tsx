@@ -4,24 +4,8 @@ import Link from 'next/link';
 import HuntCard from '@/components/hunt-card';
 import SubmitForm from '@/components/submit-form';
 import { FEATURED_HUNT_IDS } from '@/lib/featured';
+import { toDisplayDate } from '@/lib/format';
 import { getPublishedHuntSummaries } from '@/lib/hunts';
-
-function formatDate(dateValue: string | undefined) {
-  if (!dateValue) {
-    return '-';
-  }
-
-  const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) {
-    return '-';
-  }
-
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date);
-}
 
 export default async function HomePage() {
   const hunts = await getPublishedHuntSummaries();
@@ -34,7 +18,7 @@ export default async function HomePage() {
     .filter((hunt) => hunt != null);
 
   return (
-    <main id="main">
+    <>
       <section className="hero container">
         <div className="hero-copy">
           <p className="eyebrow">Community QA patterns</p>
@@ -91,7 +75,7 @@ assertions:
           <span>Categories covered</span>
         </article>
         <article>
-          <p>{formatDate(latestUpdated)}</p>
+          <p>{toDisplayDate(latestUpdated)}</p>
           <span>Last template update</span>
         </article>
       </section>
@@ -137,6 +121,6 @@ assertions:
           <p>Submission flow routes contributors through GitHub PRs for controlled approval.</p>
         </article>
       </section>
-    </main>
+    </>
   );
 }
