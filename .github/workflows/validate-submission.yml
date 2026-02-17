@@ -70,7 +70,8 @@ jobs:
           BLOCKED=""
           for url in $URLS; do
             DOMAIN=$(echo "$url" | sed -E 's|https?://([^/:]+).*|\1|')
-            if ! is_allowed_domain "$DOMAIN"; then
+            DOMAIN_NORMALIZED=$(printf '%s' "$DOMAIN" | tr '[:upper:]' '[:lower:]')
+            if ! is_allowed_domain "$DOMAIN_NORMALIZED"; then
               BLOCKED="${BLOCKED}\n  ${url}"
             fi
           done

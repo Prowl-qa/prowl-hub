@@ -67,9 +67,10 @@ export default function HubShell({ hunts }: HubShellProps) {
       }
 
       const categoryMatch = category === 'all' || hunt.category === category;
+      const tags = hunt.tags || [];
       const queryMatch =
         normalizedQuery.length === 0 ||
-        `${hunt.title} ${hunt.description} ${hunt.categoryLabel} ${hunt.tags.join(' ')}`.toLowerCase().includes(normalizedQuery);
+        `${hunt.title} ${hunt.description} ${hunt.categoryLabel} ${tags.join(' ')}`.toLowerCase().includes(normalizedQuery);
 
       return categoryMatch && queryMatch;
     });
@@ -190,45 +191,50 @@ export default function HubShell({ hunts }: HubShellProps) {
           {filteredHunts.length === 0 ? (
             <div className="empty-state">No verified hunts match that filter yet.</div>
           ) : (
-            filteredHunts.map((hunt) => (
-              <article key={hunt.id} className="hunt-card">
-                <h3>{hunt.title}</h3>
-                <p>{hunt.description || 'Reusable hunt template.'}</p>
+            filteredHunts.map((hunt) => {
+              const tags = hunt.tags || [];
+              return (
+                <article key={hunt.id} className="hunt-card">
+                  <h3>{hunt.title}</h3>
+                  <p>{hunt.description || 'Reusable hunt template.'}</p>
 
-                <div className="meta-row">
-                  <span className="meta-pill">{hunt.categoryLabel}</span>
-                  <span className="meta-pill meta-pill-verified">Verified</span>
-                  {hunt.isNew && <span className="meta-pill meta-pill-new">New</span>}
-                </div>
-
-                <div className="meta-row">
-                  <span className="meta-pill">{hunt.stepCount} steps</span>
-                  <span className="meta-pill">{hunt.assertionCount} assertions</span>
-                  <span className="meta-pill">Updated {toDisplayDate(hunt.updatedAt)}</span>
-                </div>
-
-                {hunt.tags.length > 0 && (
                   <div className="meta-row">
-                    {hunt.tags.map((tag) => (
-                      <span key={tag} className="meta-pill meta-pill-tag">{tag}</span>
-                    ))}
+                    <span className="meta-pill">{hunt.categoryLabel}</span>
+                    <span className="meta-pill meta-pill-verified">Verified</span>
+                    {hunt.isNew && <span className="meta-pill meta-pill-new">New</span>}
                   </div>
-                )}
 
-                <div className="hunt-actions">
-                  <button type="button" className="button button-ghost" onClick={() => setSelectedHunt(hunt)}>
-                    Preview YAML
-                  </button>
-                  <a
-                    className="button button-primary"
-                    href={`/api/hunts/file?path=${encodeURIComponent(hunt.filePath)}`}
-                    download={hunt.filePath.split('/').pop() || 'hunt.yml'}
-                  >
-                    Download
-                  </a>
-                </div>
-              </article>
-            ))
+                  <div className="meta-row">
+                    <span className="meta-pill">{hunt.stepCount} steps</span>
+                    <span className="meta-pill">{hunt.assertionCount} assertions</span>
+                    <span className="meta-pill">Updated {toDisplayDate(hunt.updatedAt)}</span>
+                  </div>
+
+                  {tags.length > 0 && (
+                    <div className="meta-row">
+                      {tags.map((tag) => (
+                        <span key={tag} className="meta-pill meta-pill-tag">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="hunt-actions">
+                    <button type="button" className="button button-ghost" onClick={() => setSelectedHunt(hunt)}>
+                      Preview YAML
+                    </button>
+                    <a
+                      className="button button-primary"
+                      href={`/api/hunts/file?path=${encodeURIComponent(hunt.filePath)}`}
+                      download={hunt.filePath.split('/').pop() || 'hunt.yml'}
+                    >
+                      Download
+                    </a>
+                  </div>
+                </article>
+              );
+            })
           )}
         </div>
       </section>
