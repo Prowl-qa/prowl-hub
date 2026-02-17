@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-export const PUBLISHED_DIRS = ['auth', 'admin', 'e-commerce', 'saas', 'accessibility'] as const;
+export const PUBLISHED_DIRS = ['smoke', 'auth', 'forms', 'admin', 'e-commerce', 'saas', 'accessibility'] as const;
 
 export type HuntCategory = (typeof PUBLISHED_DIRS)[number];
 
@@ -23,7 +23,9 @@ export interface HuntRecord {
 }
 
 const CATEGORY_LABELS: Record<HuntCategory, string> = {
+  smoke: 'Smoke Tests',
   auth: 'Auth',
+  forms: 'Forms',
   admin: 'Admin',
   'e-commerce': 'E-commerce',
   saas: 'SaaS',
@@ -31,7 +33,7 @@ const CATEGORY_LABELS: Record<HuntCategory, string> = {
 };
 
 const rootDir = process.cwd();
-const HUNTS_ROOT = path.join(rootDir, '.prowlqa', 'hunts');
+const HUNTS_ROOT = rootDir;
 const newThresholdMs = 30 * 24 * 60 * 60 * 1000;
 
 function getFieldValue(content: string, key: string) {
@@ -92,7 +94,7 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
     }
 
     for (const file of files.filter((entry) => entry.endsWith('.yml')).sort()) {
-      const filePath = `.prowlqa/hunts/${category}/${file}`;
+      const filePath = `${category}/${file}`;
       try {
         const absolutePath = path.join(HUNTS_ROOT, category, file);
         const content = await fs.readFile(absolutePath, 'utf8');
