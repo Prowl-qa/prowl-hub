@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import HuntCard from '@/components/hunt-card';
@@ -43,12 +43,10 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const initialCategory = searchParams.get('category') || 'all';
-  const initialPage = Math.max(1, Number(searchParams.get('page')) || 1);
+  const category = searchParams.get('category') || 'all';
+  const currentPage = Math.max(1, Number(searchParams.get('page')) || 1);
 
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState<string>(initialCategory);
-  const [currentPage, setCurrentPage] = useState(initialPage);
   const [selectedHunt, setSelectedHunt] = useState<HuntSummary | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<'idle' | 'done' | 'failed'>('idle');
@@ -107,28 +105,21 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
   }, []);
 
   function handleCategoryChange(newCategory: string) {
-    setCategory(newCategory);
-    setCurrentPage(1);
-    updateUrl(1, newCategory);
+    startTransition(() => {
+      updateUrl(1, newCategory);
+    });
   }
 
   function handlePageChange(page: number) {
-    setCurrentPage(page);
-    updateUrl(page, category);
+    startTransition(() => {
+      updateUrl(page, category);
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function handleSearchChange(value: string) {
     setQuery(value);
-    setCurrentPage(1);
   }
-
-  useEffect(() => {
-    const urlCategory = searchParams.get('category') || 'all';
-    const urlPage = Math.max(1, Number(searchParams.get('page')) || 1);
-    setCategory((current) => (current === urlCategory ? current : urlCategory));
-    setCurrentPage((current) => (current === urlPage ? current : urlPage));
-  }, [searchParams]);
 
   async function handlePreview(hunt: HuntSummary) {
     const activeElement = document.activeElement;
