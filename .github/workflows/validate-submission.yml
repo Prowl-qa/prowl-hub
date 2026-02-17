@@ -91,14 +91,15 @@ jobs:
           for file in $(find . -name '*.yml' -not -path './.github/*'); do
             python3 -c "
           import yaml, sys
+          file = sys.argv[1]
           try:
-              with open('$file') as f:
+              with open(file) as f:
                   yaml.safe_load(f)
           except yaml.YAMLError as e:
-              print(f'Invalid YAML: $file')
+              print(f'Invalid YAML: {file}')
               print(str(e))
               sys.exit(1)
-          " 2>&1 || ERRORS="${ERRORS}\n  ${file}"
+          " "$file" 2>&1 || ERRORS="${ERRORS}\n  ${file}"
           done
           if [ -n "$ERRORS" ]; then
             echo "::error::YAML parsing failed for:"
@@ -117,6 +118,7 @@ jobs:
               [ -f "$file" ] || continue
               python3 -c "
           import yaml, sys
+          file = sys.argv[1]
 
           VALID_STEP_KEYS = {
               'navigate', 'click', 'wait', 'fill', 'select',
@@ -124,7 +126,7 @@ jobs:
               'runHunt', 'iframe_action',
           }
 
-          with open('$file') as f:
+          with open(file) as f:
               doc = yaml.safe_load(f)
 
           errors = []
@@ -168,11 +170,11 @@ jobs:
                           errors.append(f'Step {i+1}: empty step (no action key)')
 
           if errors:
-              print(f'Schema errors in $file:')
+              print(f'Schema errors in {file}:')
               for e in errors:
                   print(f'  - {e}')
               sys.exit(1)
-          " 2>&1 || ERRORS="${ERRORS}\n  ${file}"
+          " "$file" 2>&1 || ERRORS="${ERRORS}\n  ${file}"
             done
           done
           if [ -n "$ERRORS" ]; then
