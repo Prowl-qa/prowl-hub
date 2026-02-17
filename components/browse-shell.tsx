@@ -1,28 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import HuntCard from '@/components/hunt-card';
+import { toDisplayDate } from '@/lib/format';
 import type { HuntSummary } from '@/lib/hunts';
 
 const ITEMS_PER_PAGE = 12;
 
 interface BrowseShellProps {
   hunts: HuntSummary[];
-}
-
-function toDisplayDate(value: string) {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return '-';
-  }
-
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(parsed);
 }
 
 function buildPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
@@ -64,6 +52,10 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
   const [selectedHunt, setSelectedHunt] = useState<HuntSummary | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<'idle' | 'done' | 'failed'>('idle');
+  const modalPanelRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const previewRequestIdRef = useRef(0);
 
   const categories = useMemo(
     () => [
@@ -107,6 +99,13 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
     [router]
   );
 
+  const closePreview = useCallback(() => {
+    previewRequestIdRef.current += 1;
+    setSelectedHunt(null);
+    setPreviewContent(null);
+    setCopyState('idle');
+  }, []);
+
   function handleCategoryChange(newCategory: string) {
     setCategory(newCategory);
     setCurrentPage(1);
@@ -124,19 +123,38 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
     setCurrentPage(1);
   }
 
+  useEffect(() => {
+    const urlCategory = searchParams.get('category') || 'all';
+    const urlPage = Math.max(1, Number(searchParams.get('page')) || 1);
+    setCategory((current) => (current === urlCategory ? current : urlCategory));
+    setCurrentPage((current) => (current === urlPage ? current : urlPage));
+  }, [searchParams]);
+
   async function handlePreview(hunt: HuntSummary) {
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement) {
+      triggerRef.current = activeElement;
+    }
+
+    const requestId = ++previewRequestIdRef.current;
     setSelectedHunt(hunt);
     setPreviewContent(null);
     setCopyState('idle');
 
     try {
       const response = await fetch(`/api/hunts/file?path=${encodeURIComponent(hunt.filePath)}`);
+      if (requestId !== previewRequestIdRef.current) {
+        return;
+      }
       if (response.ok) {
         setPreviewContent(await response.text());
       } else {
         setPreviewContent('# Failed to load hunt content');
       }
     } catch {
+      if (requestId !== previewRequestIdRef.current) {
+        return;
+      }
       setPreviewContent('# Failed to load hunt content');
     }
   }
@@ -157,15 +175,69 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
   }
 
   useEffect(() => {
-    if (!selectedHunt) return;
-
-    function handleEsc(event: KeyboardEvent) {
-      if (event.key === 'Escape') setSelectedHunt(null);
+    if (!selectedHunt) {
+      if (triggerRef.current) {
+        triggerRef.current.focus();
+        triggerRef.current = null;
+      }
+      return;
     }
 
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
-  }, [selectedHunt]);
+    const dialog = modalPanelRef.current;
+    if (!dialog) {
+      return;
+    }
+    const dialogElement: HTMLDivElement = dialog;
+
+    const initialFocus = closeButtonRef.current ?? dialogElement;
+    initialFocus.focus();
+
+    const getFocusableElements = () =>
+      Array.from(
+        dialogElement.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((element) => element.getAttribute('aria-hidden') !== 'true');
+
+    function handleDialogKeydown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closePreview();
+        return;
+      }
+
+      if (event.key !== 'Tab') {
+        return;
+      }
+
+      const focusable = getFocusableElements();
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialogElement.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const activeElement = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey) {
+        if (!activeElement || !dialogElement.contains(activeElement) || activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        }
+        return;
+      }
+
+      if (!activeElement || !dialogElement.contains(activeElement) || activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    dialogElement.addEventListener('keydown', handleDialogKeydown);
+    return () => dialogElement.removeEventListener('keydown', handleDialogKeydown);
+  }, [closePreview, selectedHunt]);
 
   return (
     <>
@@ -183,14 +255,15 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
 
         <div className="chip-row" role="list" aria-label="Categories">
           {categories.map((entry) => (
-            <button
-              key={entry.key}
-              type="button"
-              className={category === entry.key ? 'is-active' : ''}
-              onClick={() => handleCategoryChange(entry.key)}
-            >
-              {entry.label}
-            </button>
+            <div key={entry.key} role="listitem">
+              <button
+                type="button"
+                className={category === entry.key ? 'is-active' : ''}
+                onClick={() => handleCategoryChange(entry.key)}
+              >
+                {entry.label}
+              </button>
+            </div>
           ))}
         </div>
       </div>
@@ -199,7 +272,7 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
         Showing {paginatedHunts.length} of {filteredHunts.length} hunt{filteredHunts.length !== 1 ? 's' : ''}
       </p>
 
-      <div className="hunt-grid" aria-live="polite">
+      <div className="hunt-grid">
         {paginatedHunts.length === 0 ? (
           <div className="empty-state">No verified hunts match that filter yet.</div>
         ) : (
@@ -259,17 +332,19 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
       )}
 
       {selectedHunt && (
-        <div className="modal-backdrop" role="presentation" onClick={() => setSelectedHunt(null)}>
+        <div className="modal-backdrop" role="presentation" onClick={closePreview}>
           <div
+            ref={modalPanelRef}
             className="modal-panel"
             role="dialog"
             aria-modal="true"
             aria-labelledby="preview-title"
+            tabIndex={-1}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="modal-head">
               <h3 id="preview-title">{selectedHunt.title}</h3>
-              <button type="button" className="icon-button" onClick={() => setSelectedHunt(null)}>
+              <button ref={closeButtonRef} type="button" className="icon-button" onClick={closePreview}>
                 Close
               </button>
             </div>

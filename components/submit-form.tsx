@@ -97,7 +97,9 @@ export default function SubmitForm() {
           Category
           <select name="category" required>
             <option value="">Select category</option>
+            <option value="smoke">Smoke</option>
             <option value="auth">Auth</option>
+            <option value="forms">Forms</option>
             <option value="e-commerce">E-commerce</option>
             <option value="admin">Admin</option>
             <option value="saas">SaaS</option>
