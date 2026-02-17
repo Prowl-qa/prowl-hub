@@ -184,3 +184,36 @@ jobs:
             exit 1
           fi
           echo "All hunt templates pass schema validation."
+
+      - name: Validate filename matches name field
+        run: |
+          HUNT_DIRS="smoke auth forms admin e-commerce saas accessibility"
+          ERRORS=""
+          for dir in $HUNT_DIRS; do
+            [ -d "$dir" ] || continue
+            for file in "$dir"/*.yml; do
+              [ -f "$file" ] || continue
+              python3 -c "
+          import yaml, sys, os
+          file = sys.argv[1]
+          basename = os.path.splitext(os.path.basename(file))[0]
+
+          with open(file) as f:
+              doc = yaml.safe_load(f)
+
+          if isinstance(doc, dict):
+              name = doc.get('name', '')
+              if isinstance(name, str) and name and name != basename:
+                  print(f'Filename mismatch: {file}')
+                  print(f'  filename: {basename}')
+                  print(f'  name field: {name}')
+                  sys.exit(1)
+          " "$file" 2>&1 || ERRORS="${ERRORS}\n  ${file}"
+            done
+          done
+          if [ -n "$ERRORS" ]; then
+            echo "::error::Hunt filename does not match name: field for:"
+            echo -e "$ERRORS"
+            exit 1
+          fi
+          echo "All hunt filenames match their name: field."
