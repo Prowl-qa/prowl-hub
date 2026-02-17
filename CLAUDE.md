@@ -84,6 +84,10 @@ All Prowl QA repos live at `~/Desktop/Current Projects/Prowl QA/Repositories/`.
 
 **Assets**: `~/Desktop/Current Projects/Prowl QA/Assets/`
 
+## Git Workflow
+
+- **Never create pull requests.** The user will handle PR creation themselves. You may create branches, commit, and push, but stop there.
+
 ## Backlog Management
 
 This project has a tracked backlog. Use the `update-backlog` skill to look up this repo's backlog file via the repo-to-backlog mapping. If the backlog path is not already in context and the skill mapping is unavailable, ask the user for the path.
