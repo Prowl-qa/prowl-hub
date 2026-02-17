@@ -9,6 +9,18 @@ type SubmitState = {
   message: string;
 } | null;
 
+const HUNT_CATEGORY_OPTIONS = [
+  { value: 'smoke', label: 'Smoke' },
+  { value: 'auth', label: 'Auth' },
+  { value: 'forms', label: 'Forms' },
+  { value: 'e-commerce', label: 'E-commerce' },
+  { value: 'admin', label: 'Admin' },
+  { value: 'saas', label: 'SaaS' },
+  { value: 'accessibility', label: 'Accessibility' },
+] as const;
+
+const ALLOWED_HUNT_CATEGORIES = new Set<string>(HUNT_CATEGORY_OPTIONS.map((option) => option.value));
+
 function slugify(value: string) {
   return value
     .toLowerCase()
@@ -46,10 +58,10 @@ export default function SubmitForm() {
     }
 
     const validatedCategory = huntCategory.trim();
-    if (!/^[a-zA-Z0-9_-]+$/.test(validatedCategory)) {
+    if (!ALLOWED_HUNT_CATEGORIES.has(validatedCategory)) {
       setSubmitState({
         kind: 'error',
-        message: 'Invalid category; use only letters, numbers, hyphen or underscore.',
+        message: 'Invalid category; choose a supported category.',
       });
       return;
     }
@@ -97,13 +109,11 @@ export default function SubmitForm() {
           Category
           <select name="category" required>
             <option value="">Select category</option>
-            <option value="smoke">Smoke</option>
-            <option value="auth">Auth</option>
-            <option value="forms">Forms</option>
-            <option value="e-commerce">E-commerce</option>
-            <option value="admin">Admin</option>
-            <option value="saas">SaaS</option>
-            <option value="accessibility">Accessibility</option>
+            {HUNT_CATEGORY_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </label>
 

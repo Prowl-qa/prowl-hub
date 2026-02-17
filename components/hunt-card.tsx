@@ -12,7 +12,7 @@ export default function HuntCard({ hunt, showTags = true, onPreview }: HuntCardP
 
   return (
     <article className="hunt-card">
-      <span className="verified-badge">Verified</span>
+      {hunt.isVerified && <span className="verified-badge">Verified</span>}
       <h3>{hunt.title}</h3>
       <p>{hunt.description || 'Reusable hunt template.'}</p>
 
