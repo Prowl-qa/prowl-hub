@@ -69,7 +69,8 @@ jobs:
           BLOCKED=""
           for url in $URLS; do
             CLEAN_URL=$(printf '%s' "$url" | sed -E "s/^[[:space:][:punct:]]+//; s/[[:space:][:punct:]]+$//")
-            DOMAIN=$(echo "$CLEAN_URL" | sed -E 's|https?://([^/:]+).*|\1|')
+            CLEAN_URL_LOWER=$(printf '%s' "$CLEAN_URL" | tr '[:upper:]' '[:lower:]')
+            DOMAIN=$(echo "$CLEAN_URL_LOWER" | sed -E 's|https?://([^/:]+).*|\1|')
             DOMAIN_NORMALIZED=$(printf '%s' "$DOMAIN" | tr '[:upper:]' '[:lower:]')
             if ! is_allowed_domain "$DOMAIN_NORMALIZED"; then
               BLOCKED="${BLOCKED}\n  ${CLEAN_URL}"
