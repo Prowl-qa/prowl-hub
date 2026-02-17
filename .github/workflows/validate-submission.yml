@@ -68,10 +68,11 @@ jobs:
             xargs -0 grep -hoE 'https?://[^[:space:]"]+' || true)
           BLOCKED=""
           for url in $URLS; do
-            DOMAIN=$(echo "$url" | sed -E 's|https?://([^/:]+).*|\1|')
+            CLEAN_URL=$(printf '%s' "$url" | sed -E "s/^[[:space:][:punct:]]+//; s/[[:space:][:punct:]]+$//")
+            DOMAIN=$(echo "$CLEAN_URL" | sed -E 's|https?://([^/:]+).*|\1|')
             DOMAIN_NORMALIZED=$(printf '%s' "$DOMAIN" | tr '[:upper:]' '[:lower:]')
             if ! is_allowed_domain "$DOMAIN_NORMALIZED"; then
-              BLOCKED="${BLOCKED}\n  ${url}"
+              BLOCKED="${BLOCKED}\n  ${CLEAN_URL}"
             fi
           done
           if [ -n "$BLOCKED" ]; then

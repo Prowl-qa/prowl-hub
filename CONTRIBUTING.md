@@ -142,7 +142,7 @@ The automated pipeline validates:
 - **File types** — only allowed extensions
 - **File size** — `.yml` and `.md` files must be under 50KB
 - **Credential patterns** — flags `{{...}}` variables referencing `PASSWORD`, `SECRET`, `TOKEN`, `KEY`, etc.
-- **URL domains** — only `localhost`, `127.0.0.1`, `example.com`, and explicitly allowlisted domains
+- **URL domains** — only `localhost`, `127.0.0.1`, `0.0.0.0`, `example.com` (and any `*.example.com` subdomain), `accounts.google.com`, `checkout.stripe.com`, and `js.stripe.com`
 - **YAML syntax** — must parse without errors
 - **Hunt schema** — `name`, `description`, `steps`, and `tags` are required; step types must be recognized
 
