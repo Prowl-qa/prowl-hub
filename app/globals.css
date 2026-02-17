@@ -453,6 +453,12 @@ main {
   border-color: #67a8d3;
 }
 
+.meta-pill-tag {
+  background: color-mix(in srgb, #e8eeff 78%, transparent);
+  border-color: #8899cc;
+  font-size: 0.7rem;
+}
+
 .hunt-actions {
   display: flex;
   gap: 8px;

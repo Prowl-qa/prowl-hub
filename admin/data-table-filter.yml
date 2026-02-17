@@ -11,6 +11,12 @@
 name: data-table-filter
 description: Filter, sort, and paginate a data table
 
+tags:
+  - admin
+  - crud
+  - table
+  - filter
+
 steps:
   # Assumes you're already logged in — use runHunt to reuse login
   # - runHunt: "login-flow"

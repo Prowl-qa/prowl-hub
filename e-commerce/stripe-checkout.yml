@@ -18,6 +18,12 @@
 name: stripe-checkout
 description: Complete a purchase using Stripe test credentials
 
+tags:
+  - e-commerce
+  - payment
+  - stripe
+  - checkout
+
 vars:
   CARD_NUMBER: "4242424242424242"
   CARD_EXPIRY: "12/30"

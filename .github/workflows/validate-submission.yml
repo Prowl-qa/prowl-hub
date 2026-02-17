@@ -44,29 +44,45 @@ jobs:
             echo ""
             echo "These patterns reference common credential names."
             echo "Maintainer: verify these are test variables, not credential extraction attempts."
+            echo "If safe, a maintainer may allow this PR."
           fi
 
       - name: Scan URLs
         run: |
+          # Check if a domain is in the allowlist
+          is_allowed_domain() {
+            local domain="$1"
+            case "$domain" in
+              localhost|127.0.0.1|0.0.0.0) return 0 ;;
+              accounts.google.com|checkout.stripe.com|js.stripe.com) return 0 ;;
+            esac
+            # Match example.com and any subdomain (e.g. sub.example.com)
+            if [[ "$domain" == "example.com" || "$domain" =~ \.example\.com$ ]]; then
+              return 0
+            fi
+            return 1
+          }
+
           # Extract URLs from yml files and check against allowlist
           URLS=$(find . -name '*.yml' -not -path './.github/*' -print0 | \
             xargs -0 grep -hoE 'https?://[^[:space:]"]+' || true)
           BLOCKED=""
           for url in $URLS; do
-            DOMAIN=$(echo "$url" | sed -E 's|https?://([^/:]+).*|\1|')
-            case "$DOMAIN" in
-              localhost|127.0.0.1|0.0.0.0|example.com|*.example.com) ;;
-              accounts.google.com|checkout.stripe.com|js.stripe.com) ;;
-              *)
-                BLOCKED="${BLOCKED}\n  ${url}"
-                ;;
-            esac
+            CLEAN_URL=$(printf '%s' "$url" | sed -E "s/^[[:space:][:punct:]]+//; s/[[:space:][:punct:]]+$//")
+            CLEAN_URL_LOWER=$(printf '%s' "$CLEAN_URL" | tr '[:upper:]' '[:lower:]')
+            DOMAIN=$(echo "$CLEAN_URL_LOWER" | sed -E 's|https?://([^/:]+).*|\1|')
+            DOMAIN_NORMALIZED=$(printf '%s' "$DOMAIN" | tr '[:upper:]' '[:lower:]')
+            if ! is_allowed_domain "$DOMAIN_NORMALIZED"; then
+              BLOCKED="${BLOCKED}\n  ${CLEAN_URL}"
+            fi
           done
           if [ -n "$BLOCKED" ]; then
-            echo "::warning::URLs pointing to non-allowlisted domains detected:"
+            echo "::error::URLs pointing to non-allowlisted domains detected:"
             echo -e "$BLOCKED"
             echo ""
             echo "Maintainer: verify these URLs are safe demo/test sites."
+            echo "If safe, a maintainer may override this check."
+            exit 1
           fi
 
       - name: Validate YAML syntax
@@ -76,14 +92,15 @@ jobs:
           for file in $(find . -name '*.yml' -not -path './.github/*'); do
             python3 -c "
           import yaml, sys
+          file = sys.argv[1]
           try:
-              with open('$file') as f:
+              with open(file) as f:
                   yaml.safe_load(f)
           except yaml.YAMLError as e:
-              print(f'Invalid YAML: $file')
+              print(f'Invalid YAML: {file}')
               print(str(e))
               sys.exit(1)
-          " 2>&1 || ERRORS="${ERRORS}\n  ${file}"
+          " "$file" 2>&1 || ERRORS="${ERRORS}\n  ${file}"
           done
           if [ -n "$ERRORS" ]; then
             echo "::error::YAML parsing failed for:"
@@ -91,3 +108,79 @@ jobs:
             exit 1
           fi
           echo "All YAML files are valid."
+
+      - name: Validate hunt schema
+        run: |
+          HUNT_DIRS="auth admin e-commerce saas accessibility"
+          ERRORS=""
+          for dir in $HUNT_DIRS; do
+            [ -d "$dir" ] || continue
+            for file in "$dir"/*.yml; do
+              [ -f "$file" ] || continue
+              python3 -c "
+          import yaml, sys
+          file = sys.argv[1]
+
+          VALID_STEP_KEYS = {
+              'navigate', 'click', 'wait', 'fill', 'select',
+              'waitForUrl', 'waitForNetworkIdle', 'assert',
+              'runHunt', 'iframe_action',
+          }
+
+          with open(file) as f:
+              doc = yaml.safe_load(f)
+
+          errors = []
+
+          if not isinstance(doc, dict):
+              errors.append('Document must be a YAML mapping')
+          else:
+              # name: required, non-empty string
+              name = doc.get('name')
+              if not name or not isinstance(name, str):
+                  errors.append('Missing or empty \"name\" field')
+
+              # description: required, non-empty string
+              desc = doc.get('description')
+              if not desc or not isinstance(desc, str):
+                  errors.append('Missing or empty \"description\" field')
+
+              # tags: required, non-empty list of strings
+              tags = doc.get('tags')
+              if not isinstance(tags, list) or len(tags) == 0:
+                  errors.append('Missing or empty \"tags\" field (must be a non-empty list)')
+              else:
+                  for i, tag in enumerate(tags):
+                      if not isinstance(tag, str) or not tag.strip():
+                          errors.append(f'Tag {i+1}: must be a non-empty string')
+
+              # steps: required, non-empty list
+              steps = doc.get('steps')
+              if not isinstance(steps, list) or len(steps) == 0:
+                  errors.append('Missing or empty \"steps\" field (must be a non-empty list)')
+              else:
+                  for i, step in enumerate(steps):
+                      if not isinstance(step, dict):
+                          errors.append(f'Step {i+1}: must be a mapping, got {type(step).__name__}')
+                          continue
+                      keys = set(step.keys())
+                      unknown = keys - VALID_STEP_KEYS
+                      if unknown:
+                          errors.append(f'Step {i+1}: unrecognized key(s): {unknown}')
+                      if len(keys) == 0:
+                          errors.append(f'Step {i+1}: empty step (no action key)')
+
+          if errors:
+              print(f'Schema errors in {file}:')
+              for e in errors:
+                  print(f'  - {e}')
+              sys.exit(1)
+          " "$file" 2>&1 || ERRORS="${ERRORS}\n  ${file}"
+            done
+          done
+          if [ -n "$ERRORS" ]; then
+            echo "::error::Hunt schema validation failed for:"
+            echo -e "$ERRORS"
+            exit 1
+          fi
+          echo "All hunt templates pass schema validation."
