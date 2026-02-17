@@ -5,7 +5,7 @@ export const PUBLISHED_DIRS = ['smoke', 'auth', 'forms', 'admin', 'e-commerce', 
 
 export type HuntCategory = (typeof PUBLISHED_DIRS)[number];
 
-export interface HuntRecord {
+export interface HuntSummary {
   id: string;
   title: string;
   name: string;
@@ -19,6 +19,9 @@ export interface HuntRecord {
   isVerified: boolean;
   isNew: boolean;
   tags: string[];
+}
+
+export interface HuntRecord extends HuntSummary {
   content: string;
 }
 
@@ -71,13 +74,19 @@ function countEntries(lines: string[]) {
 function getTagValues(content: string): string[] {
   const lines = extractSection(content, 'tags');
   return lines
-    .map((line) => line.replace(/^\s*-\s*/, '').trim())
-    .filter(Boolean);
+    .filter((line) => /^\s*-\s+/.test(line))
+    .map((line) => line.replace(/^\s*-\s+/, '').trim())
+    .filter((tag) => Boolean(tag) && !tag.startsWith('#'));
 }
 
 function toDisplayTitle(name: string, fallbackFilename: string) {
   const raw = name || fallbackFilename.replace(/\.yml$/, '');
   return raw.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+export async function getPublishedHuntSummaries(): Promise<HuntSummary[]> {
+  const hunts = await getPublishedHunts();
+  return hunts.map(({ content: _content, ...summary }) => summary);
 }
 
 export async function getPublishedHunts(): Promise<HuntRecord[]> {

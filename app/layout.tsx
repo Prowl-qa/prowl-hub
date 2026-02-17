@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { JetBrains_Mono, Source_Sans_3, Space_Grotesk } from 'next/font/google';
 
+import SiteFooter from '@/components/site-footer';
+import SiteHeader from '@/components/site-header';
+
 import './globals.css';
 
 const displayFont = Space_Grotesk({
@@ -33,7 +36,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}>{children}</body>
+      <body className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}>
+        <SiteHeader />
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }
