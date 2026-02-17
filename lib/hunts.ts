@@ -18,6 +18,7 @@ export interface HuntRecord {
   updatedAt: string;
   isVerified: boolean;
   isNew: boolean;
+  tags: string[];
   content: string;
 }
 
@@ -65,6 +66,13 @@ function countEntries(lines: string[]) {
   return lines.filter((line) => /^\s*-\s+(?!#).+/.test(line)).length;
 }
 
+function getTagValues(content: string): string[] {
+  const lines = extractSection(content, 'tags');
+  return lines
+    .map((line) => line.replace(/^\s*-\s*/, '').trim())
+    .filter(Boolean);
+}
+
 function toDisplayTitle(name: string, fallbackFilename: string) {
   const raw = name || fallbackFilename.replace(/\.yml$/, '');
   return raw.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
@@ -94,6 +102,7 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
         const description = getFieldValue(content, 'description');
         const stepCount = countEntries(extractSection(content, 'steps'));
         const assertionCount = countEntries(extractSection(content, 'assertions'));
+        const tags = getTagValues(content);
         const isNew = Date.now() - stats.mtimeMs <= newThresholdMs;
 
         hunts.push({
@@ -109,6 +118,7 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
           updatedAt: stats.mtime.toISOString(),
           isVerified: true,
           isNew,
+          tags,
           content,
         });
       } catch (error) {

@@ -189,6 +189,12 @@ Security docs:
 - Suspicious URL/domain patterns
 - YAML syntax parsing
 
+## Using Templates Programmatically
+
+Hunt templates can be discovered, pulled, and executed via the [ProwlQA CLI](https://github.com/Prowl-qa/prowl) and library API.
+
+For the full integration guide — including `--json` structured output, JUnit reports, and the Node.js library API — see the [Agent Integration docs](https://docs.prowlqa.dev/agents).
+
 ## Brand Assets
 
 Put brand files in:
