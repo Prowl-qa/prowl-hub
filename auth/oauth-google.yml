@@ -22,6 +22,11 @@
 name: oauth-google
 description: Google OAuth login and redirect verification
 
+tags:
+  - auth
+  - oauth
+  - login
+
 vars:
   GOOGLE_EMAIL: "{{TEST_GOOGLE_EMAIL}}"
   GOOGLE_PASSWORD: "{{TEST_GOOGLE_PASSWORD}}"

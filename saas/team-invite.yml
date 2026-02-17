@@ -11,6 +11,12 @@
 name: team-invite
 description: Invite a team member and verify pending invitation
 
+tags:
+  - saas
+  - team
+  - invite
+  - form
+
 vars:
   INVITE_EMAIL: "newmember@example.com"
 

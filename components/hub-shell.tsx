@@ -69,7 +69,7 @@ export default function HubShell({ hunts }: HubShellProps) {
       const categoryMatch = category === 'all' || hunt.category === category;
       const queryMatch =
         normalizedQuery.length === 0 ||
-        `${hunt.title} ${hunt.description} ${hunt.categoryLabel}`.toLowerCase().includes(normalizedQuery);
+        `${hunt.title} ${hunt.description} ${hunt.categoryLabel} ${hunt.tags.join(' ')}`.toLowerCase().includes(normalizedQuery);
 
       return categoryMatch && queryMatch;
     });
@@ -206,6 +206,14 @@ export default function HubShell({ hunts }: HubShellProps) {
                   <span className="meta-pill">{hunt.assertionCount} assertions</span>
                   <span className="meta-pill">Updated {toDisplayDate(hunt.updatedAt)}</span>
                 </div>
+
+                {hunt.tags.length > 0 && (
+                  <div className="meta-row">
+                    {hunt.tags.map((tag) => (
+                      <span key={tag} className="meta-pill meta-pill-tag">{tag}</span>
+                    ))}
+                  </div>
+                )}
 
                 <div className="hunt-actions">
                   <button type="button" className="button button-ghost" onClick={() => setSelectedHunt(hunt)}>

@@ -75,10 +75,12 @@ jobs:
             fi
           done
           if [ -n "$BLOCKED" ]; then
-            echo "::warning::URLs pointing to non-allowlisted domains detected:"
+            echo "::error::URLs pointing to non-allowlisted domains detected:"
             echo -e "$BLOCKED"
             echo ""
             echo "Maintainer: verify these URLs are safe demo/test sites."
+            echo "If safe, a maintainer may override this check."
+            exit 1
           fi
 
       - name: Validate YAML syntax
@@ -138,6 +140,15 @@ jobs:
               desc = doc.get('description')
               if not desc or not isinstance(desc, str):
                   errors.append('Missing or empty \"description\" field')
+
+              # tags: required, non-empty list of strings
+              tags = doc.get('tags')
+              if not isinstance(tags, list) or len(tags) == 0:
+                  errors.append('Missing or empty \"tags\" field (must be a non-empty list)')
+              else:
+                  for i, tag in enumerate(tags):
+                      if not isinstance(tag, str) or not tag.strip():
+                          errors.append(f'Tag {i+1}: must be a non-empty string')
 
               # steps: required, non-empty list
               steps = doc.get('steps')
