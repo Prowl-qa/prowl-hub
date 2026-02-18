@@ -67,8 +67,9 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ ok: false, error: 'Invalid huntName' });
   }
 
-  const client = await pool.connect();
+  let client;
   try {
+    client = await pool.connect();
     await client.query('BEGIN');
 
     // Serialize cap checks + insert with a transaction-scoped advisory lock.
@@ -98,15 +99,19 @@ router.post('/', async (req, res) => {
     await client.query('COMMIT');
     return res.status(201).json({ ok: true });
   } catch (err) {
-    try {
-      await client.query('ROLLBACK');
-    } catch {
-      // Ignore rollback failures and return the original insert/query error.
+    if (client) {
+      try {
+        await client.query('ROLLBACK');
+      } catch {
+        // Ignore rollback failures and return the original insert/query error.
+      }
     }
     console.error('[downloads] Insert failed:', err.message);
     return res.status(500).json({ ok: false, error: 'Internal error' });
   } finally {
-    client.release();
+    if (client) {
+      client.release();
+    }
   }
 });
 
@@ -140,6 +145,9 @@ router.get('/stats', async (req, res) => {
 
   if (!isValidIsoDate(fromDate) || !isValidIsoDate(toDate)) {
     return res.status(400).json({ error: 'invalid from/to date format, expected YYYY-MM-DD' });
+  }
+  if (new Date(fromDate) > new Date(toDate)) {
+    return res.status(400).json({ error: 'from date must be <= to date' });
   }
 
   try {
