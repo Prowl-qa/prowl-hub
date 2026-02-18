@@ -54,7 +54,8 @@ function isValidIsoDate(value) {
 
 // POST /api/downloads — Log a download event
 router.post('/', async (req, res) => {
-  const { huntPath, category, huntName, userAgent, referer, country } = req.body;
+  const body = req.body || {};
+  const { huntPath, category, huntName, userAgent, referer, country } = body;
 
   // Validate required fields
   if (!huntPath || typeof huntPath !== 'string' || !HUNT_PATH_RE.test(huntPath)) {
@@ -151,17 +152,6 @@ router.get('/stats', async (req, res) => {
   }
 
   try {
-    // Total all-time
-    const allTimeResult = await pool.query(`SELECT COUNT(*)::int AS count FROM hub_downloads`);
-    const allTime = allTimeResult.rows[0].count;
-
-    // Total for period
-    const periodResult = await pool.query(
-      `SELECT COUNT(*)::int AS count FROM hub_downloads WHERE created_at >= $1 AND created_at < ($2::date + 1)`,
-      [fromDate, toDate]
-    );
-    const period = periodResult.rows[0].count;
-
     // Top hunts — with optional filters
     const topFilters = [];
     const topParams = [fromDate, toDate];
@@ -180,40 +170,47 @@ router.get('/stats', async (req, res) => {
     const topOrder = sort === 'recent' ? 'MAX(created_at) DESC' : 'COUNT(*) DESC';
     topParams.push(parsedLimit);
 
-    const topHuntsResult = await pool.query(
-      `SELECT hunt_path AS "huntPath", category, hunt_name AS "huntName", COUNT(*)::int AS count
-       FROM hub_downloads
-       WHERE created_at >= $1 AND created_at < ($2::date + 1) ${topWhere}
-       GROUP BY hunt_path, category, hunt_name
-       ORDER BY ${topOrder}
-       LIMIT $${paramIdx}`,
-      topParams
-    );
-
     // Time series
     const truncExpr =
       groupBy === 'month' ? `date_trunc('month', created_at)` :
       groupBy === 'week'  ? `date_trunc('week', created_at)` :
                             `date_trunc('day', created_at)`;
 
-    const timeSeriesResult = await pool.query(
-      `SELECT ${truncExpr}::date AS date, COUNT(*)::int AS count
-       FROM hub_downloads
-       WHERE created_at >= $1 AND created_at < ($2::date + 1)
-       GROUP BY 1
-       ORDER BY 1`,
-      [fromDate, toDate]
-    );
+    const [allTimeResult, periodResult, topHuntsResult, timeSeriesResult, byCategoryResult] = await Promise.all([
+      pool.query(`SELECT COUNT(*)::int AS count FROM hub_downloads`),
+      pool.query(
+        `SELECT COUNT(*)::int AS count FROM hub_downloads WHERE created_at >= $1 AND created_at < ($2::date + 1)`,
+        [fromDate, toDate]
+      ),
+      pool.query(
+        `SELECT hunt_path AS "huntPath", category, hunt_name AS "huntName", COUNT(*)::int AS count
+         FROM hub_downloads
+         WHERE created_at >= $1 AND created_at < ($2::date + 1) ${topWhere}
+         GROUP BY hunt_path, category, hunt_name
+         ORDER BY ${topOrder}
+         LIMIT $${paramIdx}`,
+        topParams
+      ),
+      pool.query(
+        `SELECT ${truncExpr}::date AS date, COUNT(*)::int AS count
+         FROM hub_downloads
+         WHERE created_at >= $1 AND created_at < ($2::date + 1)
+         GROUP BY 1
+         ORDER BY 1`,
+        [fromDate, toDate]
+      ),
+      pool.query(
+        `SELECT category, COUNT(*)::int AS count
+         FROM hub_downloads
+         WHERE created_at >= $1 AND created_at < ($2::date + 1)
+         GROUP BY category
+         ORDER BY count DESC`,
+        [fromDate, toDate]
+      ),
+    ]);
 
-    // By category
-    const byCategoryResult = await pool.query(
-      `SELECT category, COUNT(*)::int AS count
-       FROM hub_downloads
-       WHERE created_at >= $1 AND created_at < ($2::date + 1)
-       GROUP BY category
-       ORDER BY count DESC`,
-      [fromDate, toDate]
-    );
+    const allTime = allTimeResult.rows[0].count;
+    const period = periodResult.rows[0].count;
 
     return res.json({
       totals: { allTime, period },
