@@ -5,26 +5,24 @@ import HuntCard from '@/components/hunt-card';
 import SubmitForm from '@/components/submit-form';
 import { FEATURED_HUNT_IDS } from '@/lib/featured';
 import { getPublishedHuntSummaries } from '@/lib/hunts';
+import { fetchStatsFromService } from '@/lib/stats-client';
 
 async function fetchTotalDownloads(): Promise<string> {
-  const url = process.env.STATS_API_URL;
-  const key = process.env.STATS_API_KEY;
-  if (!url || !key) return '-';
-
-  try {
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${key}` },
-      signal: AbortSignal.timeout(3000),
-      next: { revalidate: 300 },
-    });
-    if (!response.ok) return '-';
-    const data = await response.json();
-    const count: unknown = data?.totals?.allTime;
-    if (typeof count !== 'number') return '-';
-    return count.toLocaleString('en-US');
-  } catch {
+  const result = await fetchStatsFromService({
+    timeoutMs: 3000,
+    revalidate: 300,
+  });
+  if (!result.ok) {
     return '-';
   }
+
+  const data = result.data as { totals?: { allTime?: unknown } };
+  const count = Number(data?.totals?.allTime);
+  if (!Number.isFinite(count)) {
+    return '-';
+  }
+
+  return count.toLocaleString('en-US');
 }
 
 export default async function HomePage() {

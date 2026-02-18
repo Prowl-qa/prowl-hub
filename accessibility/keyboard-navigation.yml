@@ -1,8 +1,8 @@
 # Keyboard Navigation Flow
 # ---
-# Pattern: Verify core UI elements are reachable and operable via keyboard only
-# What it tests: Tabs through primary navigation, activates a link with Enter,
-#   and verifies focus management after navigation.
+# Pattern: Verify primary navigation link behavior and accessibility affordances
+# What it tests: Confirms nav content is present, activates a nav link, and
+#   verifies expected navigation occurs.
 # Customize:
 #   - Update NAV_LINK_TEXT to a visible link in your app's main navigation
 #   - Update EXPECTED_URL to the page that link navigates to
@@ -11,7 +11,7 @@
 # Tip: Run with --headed --slow-mo 500 to visually verify focus rings.
 
 name: keyboard-navigation
-description: Verify keyboard-only navigation through primary UI elements
+description: Verify primary navigation links and skip-link availability
 
 tags:
   - accessibility
@@ -33,9 +33,7 @@ steps:
   - assert:
       visible: "Skip to content"
 
-  # Tab to the target nav link and activate it
-  # Note: The number of tab presses depends on your layout.
-  # Adjust or replace with a direct focus + Enter approach.
+  # Activate the target nav link.
   - click: "{{NAV_LINK_TEXT}}"
 
   # Verify navigation occurred
