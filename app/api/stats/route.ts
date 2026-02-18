@@ -1,53 +1,52 @@
+import crypto from 'node:crypto';
+
 import { NextResponse } from 'next/server';
 
-const ALLOWED_PARAMS = ['hunt', 'category', 'from', 'to', 'group', 'sort', 'limit'];
+import { fetchStatsFromService } from '@/lib/stats-client';
+
+function isAuthorized(authHeader: string | null, expectedKey: string | undefined) {
+  if (!expectedKey || !authHeader) {
+    return false;
+  }
+
+  const expectedHeader = `Bearer ${expectedKey}`;
+  const provided = Buffer.from(authHeader, 'utf8');
+  const expected = Buffer.from(expectedHeader, 'utf8');
+
+  if (provided.length !== expected.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(provided, expected);
+}
 
 export async function GET(request: Request) {
-  const statsUrl = process.env.STATS_API_URL;
-  const statsKey = process.env.STATS_API_KEY;
-
-  if (!statsUrl || !statsKey) {
+  const expectedKey = process.env.STATS_API_KEY;
+  const authHeader = request.headers.get('authorization');
+  if (!isAuthorized(authHeader, expectedKey)) {
     return NextResponse.json(
-      { error: 'Stats service not configured' },
-      { status: 503 }
+      { error: 'Unauthorized' },
+      { status: 401 }
     );
   }
 
   const { searchParams } = new URL(request.url);
-  const forwarded = new URLSearchParams();
+  const result = await fetchStatsFromService({
+    searchParams,
+    timeoutMs: 5000,
+    revalidate: 300,
+  });
 
-  for (const param of ALLOWED_PARAMS) {
-    const value = searchParams.get(param);
-    if (value) forwarded.set(param, value);
-  }
-
-  const qs = forwarded.toString();
-  const target = `${statsUrl}${qs ? `?${qs}` : ''}`;
-
-  try {
-    const response = await fetch(target, {
-      headers: { Authorization: `Bearer ${statsKey}` },
-      signal: AbortSignal.timeout(5000),
-    });
-
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: 'Stats service error' },
-        { status: 502 }
-      );
-    }
-
-    const data = await response.json();
-
-    return NextResponse.json(data, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
-      },
-    });
-  } catch {
+  if (!result.ok) {
     return NextResponse.json(
-      { error: 'Stats service unavailable' },
-      { status: 502 }
+      { error: result.error },
+      { status: result.status }
     );
   }
+
+  return NextResponse.json(result.data, {
+    headers: {
+      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+    },
+  });
 }
