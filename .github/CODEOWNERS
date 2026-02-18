@@ -1,0 +1,15 @@
+# Default owner for all files
+* @prowltools
+
+# Category directories — community hunt templates
+auth/       @prowltools
+admin/      @prowltools
+e-commerce/ @prowltools
+saas/       @prowltools
+forms/      @prowltools
+smoke/      @prowltools
+accessibility/ @prowltools
+
+# CI and repo config require maintainer review
+.github/    @prowltools
+CLAUDE.md   @prowltools
