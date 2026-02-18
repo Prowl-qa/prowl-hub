@@ -4,14 +4,32 @@ import Link from 'next/link';
 import HuntCard from '@/components/hunt-card';
 import SubmitForm from '@/components/submit-form';
 import { FEATURED_HUNT_IDS } from '@/lib/featured';
-import { toDisplayDate } from '@/lib/format';
 import { getPublishedHuntSummaries } from '@/lib/hunts';
+import { fetchStatsFromService } from '@/lib/stats-client';
+
+async function fetchTotalDownloads(): Promise<string> {
+  const result = await fetchStatsFromService({
+    timeoutMs: 3000,
+    revalidate: 300,
+  });
+  if (!result.ok) {
+    return '-';
+  }
+
+  const data = result.data as { totals?: { allTime?: unknown } };
+  const count = Number(data?.totals?.allTime);
+  if (!Number.isFinite(count)) {
+    return '-';
+  }
+
+  return count.toLocaleString('en-US');
+}
 
 export default async function HomePage() {
-  const hunts = await getPublishedHuntSummaries();
-  const latestUpdated = hunts
-    .map((hunt) => hunt.updatedAt)
-    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+  const [hunts, totalDownloads] = await Promise.all([
+    getPublishedHuntSummaries(),
+    fetchTotalDownloads(),
+  ]);
 
   const featuredHunts = FEATURED_HUNT_IDS
     .map((id) => hunts.find((hunt) => hunt.filePath === id))
@@ -75,8 +93,8 @@ assertions:
           <span>Categories covered</span>
         </article>
         <article>
-          <p>{toDisplayDate(latestUpdated)}</p>
-          <span>Last template update</span>
+          <p>{totalDownloads}</p>
+          <span>Total downloads</span>
         </article>
       </section>
 

@@ -1,0 +1,68 @@
+name: Request a hunt template
+description: Suggest a new hunt pattern for the community library
+title: "[Hunt Request] "
+labels: ["hunt-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new hunt template! Describe the pattern you'd like to see
+        and we'll consider adding it to the verified catalog.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Which category best fits this pattern?
+      options:
+        - Auth
+        - E-commerce
+        - Admin
+        - SaaS
+        - Forms
+        - Smoke
+        - Accessibility
+        - Other / New category
+    validations:
+      required: true
+
+  - type: input
+    id: pattern-name
+    attributes:
+      label: Pattern name
+      description: A short name for this hunt pattern (e.g., "password-reset", "checkout-guest")
+      placeholder: e.g., password-reset
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What should this hunt test?
+      description: Describe the user flow or scenario this template should cover.
+      placeholder: |
+        This hunt should test the password reset flow:
+        1. Click "Forgot password" on the login page
+        2. Enter email address
+        3. Verify confirmation message appears
+    validations:
+      required: true
+
+  - type: textarea
+    id: example-steps
+    attributes:
+      label: Example steps (optional)
+      description: If you have a rough idea of the steps, paste them here in YAML format.
+      render: yaml
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How common is this pattern?
+      description: Help us prioritize — how many apps would benefit from this template?
+      options:
+        - Very common (most web apps have this)
+        - Common (many apps have this)
+        - Niche (specific to certain app types)
+    validations:
+      required: true

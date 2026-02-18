@@ -1,0 +1,15 @@
+# Default owner for all files
+* @mtookes
+
+# Category directories — community hunt templates
+auth/       @mtookes
+admin/      @mtookes
+e-commerce/ @mtookes
+saas/       @mtookes
+forms/      @mtookes
+smoke/      @mtookes
+accessibility/ @mtookes
+
+# CI and repo config require maintainer review
+.github/    @mtookes
+CLAUDE.md   @mtookes
