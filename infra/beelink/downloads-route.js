@@ -20,6 +20,7 @@ const HUNT_PATH_RE = /^[a-z0-9-]+\/[a-z0-9-]+\.yml$/;
 const MAX_FIELD_LEN = 500;
 const DAILY_INSERT_CAP = 10_000;
 const DAILY_CAP_LOCK_KEY = 4_839_201;
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 function truncate(value, maxLen) {
   if (typeof value !== 'string') return null;
@@ -40,6 +41,15 @@ function isAuthorizedBearer(authHeader, expectedKey) {
   }
 
   return crypto.timingSafeEqual(provided, expected);
+}
+
+function isValidIsoDate(value) {
+  if (typeof value !== 'string' || !ISO_DATE_RE.test(value)) {
+    return false;
+  }
+
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }
 
 // POST /api/downloads — Log a download event
@@ -123,9 +133,14 @@ router.get('/stats', async (req, res) => {
   const validGroups = ['day', 'week', 'month'];
   const groupBy = validGroups.includes(group) ? group : 'day';
 
+  const today = new Date().toISOString().slice(0, 10);
   const defaultFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  const fromDate = from || defaultFrom;
-  const toDate = to || new Date().toISOString().slice(0, 10);
+  const fromDate = typeof from === 'undefined' ? defaultFrom : from;
+  const toDate = typeof to === 'undefined' ? today : to;
+
+  if (!isValidIsoDate(fromDate) || !isValidIsoDate(toDate)) {
+    return res.status(400).json({ error: 'invalid from/to date format, expected YYYY-MM-DD' });
+  }
 
   try {
     // Total all-time
