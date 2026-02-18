@@ -14,7 +14,7 @@ jobs:
         run: |
           INVALID_FILES=$(find . -not -path './.git/*' -not -path './.github/*' -not -path './.next/*' -type f \
             ! -name '*.yml' ! -name '*.md' ! -name '*.html' ! -name '*.css' ! -name '*.js' \
-            ! -name '*.mjs' ! -name '*.ts' ! -name '*.tsx' ! -name '*.d.ts' ! -name '*.json' \
+            ! -name '*.mjs' ! -name '*.ts' ! -name '*.tsx' ! -name '*.d.ts' ! -name '*.json' ! -name '*.sql' \
             ! -name '*.svg' ! -name '*.png' ! -name '*.jpg' ! -name '*.jpeg' ! -name '*.webp' \
             ! -name 'LICENSE' ! -name '.gitignore' \
             | head -20)
