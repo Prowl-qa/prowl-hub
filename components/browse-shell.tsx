@@ -133,7 +133,7 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
     setCopyState('idle');
 
     try {
-      const response = await fetch(`/api/hunts/file?path=${encodeURIComponent(hunt.filePath)}`);
+      const response = await fetch(`/api/hunts/file?path=${encodeURIComponent(hunt.filePath)}&preview=1`);
       if (requestId !== previewRequestIdRef.current) {
         return;
       }

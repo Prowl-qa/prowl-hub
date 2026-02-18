@@ -4,14 +4,34 @@ import Link from 'next/link';
 import HuntCard from '@/components/hunt-card';
 import SubmitForm from '@/components/submit-form';
 import { FEATURED_HUNT_IDS } from '@/lib/featured';
-import { toDisplayDate } from '@/lib/format';
 import { getPublishedHuntSummaries } from '@/lib/hunts';
 
+async function fetchTotalDownloads(): Promise<string> {
+  const url = process.env.STATS_API_URL;
+  const key = process.env.STATS_API_KEY;
+  if (!url || !key) return '-';
+
+  try {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${key}` },
+      signal: AbortSignal.timeout(3000),
+      next: { revalidate: 300 },
+    });
+    if (!response.ok) return '-';
+    const data = await response.json();
+    const count: unknown = data?.totals?.allTime;
+    if (typeof count !== 'number') return '-';
+    return count.toLocaleString('en-US');
+  } catch {
+    return '-';
+  }
+}
+
 export default async function HomePage() {
-  const hunts = await getPublishedHuntSummaries();
-  const latestUpdated = hunts
-    .map((hunt) => hunt.updatedAt)
-    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+  const [hunts, totalDownloads] = await Promise.all([
+    getPublishedHuntSummaries(),
+    fetchTotalDownloads(),
+  ]);
 
   const featuredHunts = FEATURED_HUNT_IDS
     .map((id) => hunts.find((hunt) => hunt.filePath === id))
@@ -75,8 +95,8 @@ assertions:
           <span>Categories covered</span>
         </article>
         <article>
-          <p>{toDisplayDate(latestUpdated)}</p>
-          <span>Last template update</span>
+          <p>{totalDownloads}</p>
+          <span>Total downloads</span>
         </article>
       </section>
 
