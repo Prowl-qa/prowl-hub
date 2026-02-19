@@ -90,6 +90,9 @@ Every template must include at least one tag. Use existing tags when possible:
 | `team` | Team management features |
 | `invite` | Invitation flows |
 | `accessibility` | Accessibility testing |
+| `docs` | Documentation site patterns |
+| `documentation` | Documentation-specific testing |
+| `docusaurus` | Docusaurus-based sites |
 | `smoke` | Quick smoke-test patterns |
 
 New tags are welcome when existing ones don't fit. Keep them lowercase, single-word or hyphenated.
@@ -119,7 +122,7 @@ Selectors must be generic and reusable across apps:
 ## Pull Request Workflow
 
 1. **Fork** the repository
-2. **Add** your `.yml` file to the correct category directory (`auth/`, `admin/`, `e-commerce/`, `saas/`, `accessibility/`)
+2. **Add** your `.yml` file to the correct category directory (`auth/`, `admin/`, `e-commerce/`, `saas/`, `accessibility/`, `docs/`)
 3. **Open a PR** against `main` with a clear description
 4. **CI runs automatically** — fix any failures
 5. **Maintainer reviews** content and security profile
@@ -134,6 +137,7 @@ Selectors must be generic and reusable across apps:
 | `e-commerce/` | Shopping, payments, orders |
 | `saas/` | Teams, billing, onboarding, SaaS-specific |
 | `accessibility/` | Keyboard navigation, focus, screen readers |
+| `docs/` | Documentation sites (Docusaurus, etc.) |
 
 ## What CI Checks
 
