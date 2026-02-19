@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-export const PUBLISHED_DIRS = ['smoke', 'auth', 'forms', 'admin', 'e-commerce', 'saas', 'accessibility'] as const;
+export const PUBLISHED_DIRS = ['smoke', 'auth', 'forms', 'admin', 'e-commerce', 'saas', 'accessibility', 'docs'] as const;
 
 export type HuntCategory = (typeof PUBLISHED_DIRS)[number];
 
@@ -33,6 +33,7 @@ const CATEGORY_LABELS: Record<HuntCategory, string> = {
   'e-commerce': 'E-commerce',
   saas: 'SaaS',
   accessibility: 'Accessibility',
+  docs: 'Docs',
 };
 
 const rootDir = process.cwd();
