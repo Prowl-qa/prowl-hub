@@ -67,6 +67,21 @@ assertions:
 | `assert` | Inline assertion (`visible`, `notVisible`, `urlIncludes`) |
 | `runHunt` | Compose another hunt as a sub-step |
 | `iframe_action` | Interact with elements inside an iframe |
+| `onDialog` | Handle browser dialogs (`accept` or `dismiss`) |
+| `waitForSelector` | Wait for a CSS selector to appear |
+| `screenshot` | Capture a screenshot of the current page |
+| `hover` | Hover over an element |
+| `scroll` | Scroll the current page viewport |
+| `scrollTo` | Scroll to an element using a selector |
+| `type` | Type text into the active element |
+| `setInputFiles` | Attach file(s) to a file input |
+| `if` | Run conditional steps based on a check |
+| `repeat` | Repeat a block of steps multiple times |
+| `mockRoute` | Mock a network route/response |
+| `unmockRoute` | Remove a previously configured route mock |
+| `assertScreenshot` | Assert screenshot output against baseline |
+| `selectOption` | Select a value in a dropdown by selector |
+| `press` | Press a keyboard key (e.g., `Enter`, `Tab`) |
 
 ## Tags
 
