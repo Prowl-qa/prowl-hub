@@ -126,8 +126,8 @@ jobs:
               'waitForUrl', 'waitForNetworkIdle', 'assert',
               'runHunt', 'iframe_action', 'onDialog',
               'waitForSelector', 'screenshot', 'hover', 'scroll',
-              'scrollTo', 'type', 'setInputFiles', 'evalScript',
-              'runScript', 'if', 'repeat', 'mockRoute', 'unmockRoute',
+              'scrollTo', 'type', 'setInputFiles',
+              'if', 'repeat', 'mockRoute', 'unmockRoute',
               'assertScreenshot', 'selectOption', 'press',
           }
 

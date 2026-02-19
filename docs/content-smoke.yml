@@ -35,5 +35,5 @@ steps:
 
   # Verify pagination nav is present (standard Docusaurus layout)
   - waitForSelector:
-      selector: ".pagination-nav"
+      selector: "nav[aria-label*='pagination' i]"
       timeout: 5000

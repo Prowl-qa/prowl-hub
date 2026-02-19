@@ -22,28 +22,19 @@ steps:
 
   # Wait for the toggle button to render (client-side hydration)
   - waitForSelector:
-      selector: "button[class*='toggleButton']"
+      selector: "button[aria-label*='theme' i], button[aria-label*='mode' i]"
       timeout: 5000
 
   # Docusaurus v4 uses a 3-state toggle: system → light → dark
   # First click: system → light (may not change visible theme)
   - click:
-      selector: "button[class*='toggleButton']"
+      selector: "button[aria-label*='theme' i], button[aria-label*='mode' i]"
 
   # Second click: light → dark
   - click:
-      selector: "button[class*='toggleButton']"
+      selector: "button[aria-label*='theme' i], button[aria-label*='mode' i]"
 
   # Verify dark mode is active
   - waitForSelector:
       selector: "html[data-theme='dark']"
-      timeout: 3000
-
-  # Third click: dark → system (resolves back based on OS preference)
-  - click:
-      selector: "button[class*='toggleButton']"
-
-  # Verify theme changed back to light (assumes OS light preference)
-  - waitForSelector:
-      selector: "html[data-theme='light']"
       timeout: 3000

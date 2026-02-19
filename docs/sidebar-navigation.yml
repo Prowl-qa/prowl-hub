@@ -28,7 +28,7 @@ steps:
 
   # Verify the sidebar menu is present
   - waitForSelector:
-      selector: ".theme-doc-sidebar-menu"
+      selector: "nav[aria-label*='sidebar' i]"
       timeout: 5000
 
   # Click a sidebar link and verify navigation
