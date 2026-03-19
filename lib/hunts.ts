@@ -39,6 +39,21 @@ const CATEGORY_LABELS: Record<HuntCategory, string> = {
 const rootDir = process.cwd();
 const HUNTS_ROOT = rootDir;
 const newThresholdMs = 30 * 24 * 60 * 60 * 1000;
+const HUNTS_CACHE_TTL_MS = 30_000;
+
+interface HuntsCache {
+  expiresAt: number;
+  hunts: HuntRecord[];
+  huntById: Map<string, HuntRecord>;
+  pending: Promise<HuntRecord[]> | null;
+}
+
+const huntsCache: HuntsCache = {
+  expiresAt: 0,
+  hunts: [],
+  huntById: new Map(),
+  pending: null,
+};
 
 function getFieldValue(content: string, key: string) {
   const match = content.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
@@ -90,7 +105,7 @@ export async function getPublishedHuntSummaries(): Promise<HuntSummary[]> {
   return hunts.map(({ content: _content, ...summary }) => summary);
 }
 
-export async function getPublishedHunts(): Promise<HuntRecord[]> {
+async function loadPublishedHunts(): Promise<HuntRecord[]> {
   const hunts: HuntRecord[] = [];
 
   for (const category of PUBLISHED_DIRS) {
@@ -142,6 +157,46 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
   return hunts
     .filter((hunt) => hunt.isVerified)
     .sort((a, b) => a.title.localeCompare(b.title));
+}
+
+export async function getPublishedHunts(): Promise<HuntRecord[]> {
+  const now = Date.now();
+  if (huntsCache.expiresAt > now) {
+    return huntsCache.hunts;
+  }
+
+  if (huntsCache.pending) {
+    return huntsCache.pending;
+  }
+
+  huntsCache.pending = loadPublishedHunts()
+    .then((hunts) => {
+      huntsCache.hunts = hunts;
+      huntsCache.huntById = new Map(hunts.map((hunt) => [hunt.id, hunt]));
+      huntsCache.expiresAt = Date.now() + HUNTS_CACHE_TTL_MS;
+      huntsCache.pending = null;
+      return hunts;
+    })
+    .catch((error) => {
+      huntsCache.pending = null;
+      throw error;
+    });
+
+  return huntsCache.pending;
+}
+
+export async function getPublishedHuntById(id: string): Promise<HuntRecord | null> {
+  const now = Date.now();
+  if (huntsCache.expiresAt > now) {
+    return huntsCache.huntById.get(id) ?? null;
+  }
+
+  await getPublishedHunts();
+  return huntsCache.huntById.get(id) ?? null;
+}
+
+export function getHuntDownloadUrl(filePath: string): string {
+  return `/api/hunts/file?path=${encodeURIComponent(filePath)}`;
 }
 
 export function sanitizePublishedPath(rawPath: string): string | null {

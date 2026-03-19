@@ -74,7 +74,14 @@ const spec = {
           { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
         ],
         responses: {
-          '200': { description: 'Hunt details with content' },
+          '200': {
+            description: 'Hunt details with content',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/HuntRecord' },
+              },
+            },
+          },
           '404': { description: 'Hunt not found' },
         },
       },
@@ -101,12 +108,18 @@ const spec = {
         type: 'object',
         properties: {
           id: { type: 'string' },
+          title: { type: 'string' },
           name: { type: 'string' },
           description: { type: 'string' },
           category: { type: 'string' },
+          categoryLabel: { type: 'string' },
+          filePath: { type: 'string' },
           tags: { type: 'array', items: { type: 'string' } },
           stepCount: { type: 'integer' },
           assertionCount: { type: 'integer' },
+          updatedAt: { type: 'string', format: 'date-time' },
+          isVerified: { type: 'boolean' },
+          isNew: { type: 'boolean' },
           downloadUrl: { type: 'string' },
         },
       },
@@ -117,8 +130,6 @@ const spec = {
             type: 'object',
             properties: {
               content: { type: 'string' },
-              updatedAt: { type: 'string', format: 'date-time' },
-              isVerified: { type: 'boolean' },
             },
           },
         ],
