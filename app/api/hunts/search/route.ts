@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { getPublishedHuntSummaries } from '@/lib/hunts';
+import { getHuntDownloadUrl, getPublishedHuntSummaries } from '@/lib/hunts';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -35,18 +35,12 @@ export async function GET(request: Request) {
   });
 
   const results = filtered.slice(offset, offset + limit).map((hunt) => ({
-    id: hunt.id,
-    name: hunt.name,
-    description: hunt.description,
-    category: hunt.category,
-    tags: hunt.tags,
-    stepCount: hunt.stepCount,
-    assertionCount: hunt.assertionCount,
-    downloadUrl: `/api/hunts/file?path=${encodeURIComponent(hunt.filePath)}`,
+    ...hunt,
+    downloadUrl: getHuntDownloadUrl(hunt.filePath),
   }));
 
   return NextResponse.json({
-    query: q || undefined,
+    query: q,
     total: filtered.length,
     limit,
     offset,
