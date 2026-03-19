@@ -14,6 +14,13 @@ const RATE_LIMIT_RULES: Array<{
 
 const DEFAULT_LIMIT = { max: 60, windowMs: 60_000 };
 
+function applyRateLimitHeaders(response: NextResponse, result: Awaited<ReturnType<typeof checkRateLimit>>) {
+  response.headers.set('X-RateLimit-Limit', String(result.limit));
+  response.headers.set('X-RateLimit-Remaining', String(result.remaining));
+  response.headers.set('X-RateLimit-Reset', String(Math.ceil(result.resetAt / 1000)));
+  return response;
+}
+
 function getClientIp(request: NextRequest): string | null {
   const trustedRequest = request as NextRequest & { ip?: string | null };
   if (trustedRequest.ip) {
@@ -46,13 +53,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const ip = getClientIp(request);
-  if (!ip) {
-    return NextResponse.json(
-      { error: 'Unable to determine client IP for rate limiting' },
-      { status: 503 }
-    );
-  }
+  const ip = getClientIp(request) ?? 'unknown';
 
   const matchedRule = RATE_LIMIT_RULES.find((rule) => pathname.startsWith(rule.prefix));
   const config = matchedRule?.limit ?? DEFAULT_LIMIT;
@@ -62,21 +63,21 @@ export async function middleware(request: NextRequest) {
   const result = await checkRateLimit(key, config.max, config.windowMs);
 
   if (!result.allowed) {
-    return NextResponse.json(
+    return applyRateLimitHeaders(
+      NextResponse.json(
       { error: 'Too many requests' },
       {
         status: 429,
         headers: {
           'Retry-After': String(result.retryAfterSeconds),
-          'X-RateLimit-Remaining': '0',
         },
       }
+      ),
+      result
     );
   }
 
-  const response = NextResponse.next();
-  response.headers.set('X-RateLimit-Remaining', String(result.remaining));
-  return response;
+  return applyRateLimitHeaders(NextResponse.next(), result);
 }
 
 export const config = {
