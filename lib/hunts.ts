@@ -39,6 +39,35 @@ const CATEGORY_LABELS: Record<HuntCategory, string> = {
 const rootDir = process.cwd();
 const HUNTS_ROOT = rootDir;
 const newThresholdMs = 30 * 24 * 60 * 60 * 1000;
+const HUNTS_CACHE_TTL_MS = 30_000;
+
+interface HuntsCache {
+  expiresAt: number;
+  hunts: HuntRecord[];
+  huntById: Map<string, HuntRecord>;
+  pending: Promise<HuntRecord[]> | null;
+}
+
+const huntsCache: HuntsCache = {
+  expiresAt: 0,
+  hunts: [],
+  huntById: new Map(),
+  pending: null,
+};
+
+function cloneHuntRecord(hunt: HuntRecord): HuntRecord {
+  return {
+    ...hunt,
+    tags: [...hunt.tags],
+  };
+}
+
+function cloneHuntSummary(hunt: HuntSummary): HuntSummary {
+  return {
+    ...hunt,
+    tags: [...hunt.tags],
+  };
+}
 
 function getFieldValue(content: string, key: string) {
   const match = content.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
@@ -87,10 +116,10 @@ function toDisplayTitle(name: string, fallbackFilename: string) {
 
 export async function getPublishedHuntSummaries(): Promise<HuntSummary[]> {
   const hunts = await getPublishedHunts();
-  return hunts.map(({ content: _content, ...summary }) => summary);
+  return hunts.map(({ content: _content, ...summary }) => cloneHuntSummary(summary));
 }
 
-export async function getPublishedHunts(): Promise<HuntRecord[]> {
+async function loadPublishedHunts(): Promise<HuntRecord[]> {
   const hunts: HuntRecord[] = [];
 
   for (const category of PUBLISHED_DIRS) {
@@ -142,6 +171,50 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
   return hunts
     .filter((hunt) => hunt.isVerified)
     .sort((a, b) => a.title.localeCompare(b.title));
+}
+
+export async function getPublishedHunts(): Promise<HuntRecord[]> {
+  const now = Date.now();
+  if (huntsCache.expiresAt > now) {
+    return huntsCache.hunts.map(cloneHuntRecord);
+  }
+
+  if (huntsCache.pending) {
+    const hunts = await huntsCache.pending;
+    return hunts.map(cloneHuntRecord);
+  }
+
+  huntsCache.pending = loadPublishedHunts()
+    .then((hunts) => {
+      huntsCache.hunts = hunts;
+      huntsCache.huntById = new Map(hunts.map((hunt) => [hunt.id, hunt]));
+      huntsCache.expiresAt = Date.now() + HUNTS_CACHE_TTL_MS;
+      huntsCache.pending = null;
+      return hunts;
+    })
+    .catch((error) => {
+      huntsCache.pending = null;
+      throw error;
+    });
+
+  const hunts = await huntsCache.pending;
+  return hunts.map(cloneHuntRecord);
+}
+
+export async function getPublishedHuntById(id: string): Promise<HuntRecord | null> {
+  const now = Date.now();
+  if (huntsCache.expiresAt > now) {
+    const hunt = huntsCache.huntById.get(id);
+    return hunt ? cloneHuntRecord(hunt) : null;
+  }
+
+  await getPublishedHunts();
+  const hunt = huntsCache.huntById.get(id);
+  return hunt ? cloneHuntRecord(hunt) : null;
+}
+
+export function getHuntDownloadUrl(filePath: string): string {
+  return `/api/hunts/file?path=${encodeURIComponent(filePath)}`;
 }
 
 export function sanitizePublishedPath(rawPath: string): string | null {
