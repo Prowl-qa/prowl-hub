@@ -2,14 +2,29 @@ import { NextResponse } from 'next/server';
 
 import { getHuntDownloadUrl, getPublishedHuntSummaries } from '@/lib/hunts';
 
+function parseIntegerParam(rawValue: string | null, fallback: number) {
+  if (rawValue === null) {
+    return fallback;
+  }
+
+  const parsed = Number(rawValue);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+
+  return Math.trunc(parsed);
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
   const q = (searchParams.get('q') || '').trim().toLowerCase();
   const category = searchParams.get('category') || '';
   const tagsParam = searchParams.get('tags') || '';
-  const limit = Math.min(Math.max(1, Number(searchParams.get('limit')) || 20), 100);
-  const offset = Math.max(0, Number(searchParams.get('offset')) || 0);
+  const rawLimit = searchParams.get('limit');
+  const rawOffset = searchParams.get('offset');
+  const limit = Math.min(Math.max(1, parseIntegerParam(rawLimit, 20)), 100);
+  const offset = Math.max(0, parseIntegerParam(rawOffset, 0));
 
   const requestedTags = tagsParam
     .split(',')

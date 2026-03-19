@@ -55,6 +55,20 @@ const huntsCache: HuntsCache = {
   pending: null,
 };
 
+function cloneHuntRecord(hunt: HuntRecord): HuntRecord {
+  return {
+    ...hunt,
+    tags: [...hunt.tags],
+  };
+}
+
+function cloneHuntSummary(hunt: HuntSummary): HuntSummary {
+  return {
+    ...hunt,
+    tags: [...hunt.tags],
+  };
+}
+
 function getFieldValue(content: string, key: string) {
   const match = content.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
   return match ? match[1].trim() : '';
@@ -102,7 +116,7 @@ function toDisplayTitle(name: string, fallbackFilename: string) {
 
 export async function getPublishedHuntSummaries(): Promise<HuntSummary[]> {
   const hunts = await getPublishedHunts();
-  return hunts.map(({ content: _content, ...summary }) => summary);
+  return hunts.map(({ content: _content, ...summary }) => cloneHuntSummary(summary));
 }
 
 async function loadPublishedHunts(): Promise<HuntRecord[]> {
@@ -162,11 +176,12 @@ async function loadPublishedHunts(): Promise<HuntRecord[]> {
 export async function getPublishedHunts(): Promise<HuntRecord[]> {
   const now = Date.now();
   if (huntsCache.expiresAt > now) {
-    return huntsCache.hunts;
+    return huntsCache.hunts.map(cloneHuntRecord);
   }
 
   if (huntsCache.pending) {
-    return huntsCache.pending;
+    const hunts = await huntsCache.pending;
+    return hunts.map(cloneHuntRecord);
   }
 
   huntsCache.pending = loadPublishedHunts()
@@ -182,17 +197,20 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
       throw error;
     });
 
-  return huntsCache.pending;
+  const hunts = await huntsCache.pending;
+  return hunts.map(cloneHuntRecord);
 }
 
 export async function getPublishedHuntById(id: string): Promise<HuntRecord | null> {
   const now = Date.now();
   if (huntsCache.expiresAt > now) {
-    return huntsCache.huntById.get(id) ?? null;
+    const hunt = huntsCache.huntById.get(id);
+    return hunt ? cloneHuntRecord(hunt) : null;
   }
 
   await getPublishedHunts();
-  return huntsCache.huntById.get(id) ?? null;
+  const hunt = huntsCache.huntById.get(id);
+  return hunt ? cloneHuntRecord(hunt) : null;
 }
 
 export function getHuntDownloadUrl(filePath: string): string {

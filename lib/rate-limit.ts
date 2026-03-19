@@ -5,8 +5,10 @@ interface RateLimitEntry {
 
 export interface RateLimitResult {
   allowed: boolean;
+  limit: number;
   remaining: number;
   retryAfterSeconds: number;
+  resetAt: number;
 }
 
 interface RateLimitStore {
@@ -41,17 +43,36 @@ class MemoryRateLimitStore implements RateLimitStore {
     const entry = this.store.get(key);
 
     if (!entry || entry.resetAt <= now) {
-      this.store.set(key, { count: 1, resetAt: now + windowMs });
-      return { allowed: true, remaining: maxRequests - 1, retryAfterSeconds: 0 };
+      const resetAt = now + windowMs;
+      this.store.set(key, { count: 1, resetAt });
+      return {
+        allowed: true,
+        limit: maxRequests,
+        remaining: maxRequests - 1,
+        retryAfterSeconds: 0,
+        resetAt,
+      };
     }
 
     if (entry.count < maxRequests) {
       entry.count++;
-      return { allowed: true, remaining: maxRequests - entry.count, retryAfterSeconds: 0 };
+      return {
+        allowed: true,
+        limit: maxRequests,
+        remaining: maxRequests - entry.count,
+        retryAfterSeconds: 0,
+        resetAt: entry.resetAt,
+      };
     }
 
     const retryAfterSeconds = Math.ceil((entry.resetAt - now) / 1000);
-    return { allowed: false, remaining: 0, retryAfterSeconds };
+    return {
+      allowed: false,
+      limit: maxRequests,
+      remaining: 0,
+      retryAfterSeconds,
+      resetAt: entry.resetAt,
+    };
   }
 }
 
@@ -61,7 +82,10 @@ class UpstashRateLimitStore implements RateLimitStore {
     private readonly token: string
   ) {}
 
-  private async command<T>(...parts: string[]): Promise<T> {
+  private async command<T>(
+    validate: (result: unknown) => result is T,
+    ...parts: string[]
+  ): Promise<T> {
     const encodedPath = parts.map((part) => encodeURIComponent(part)).join('/');
     const response = await fetch(`${this.baseUrl}/${encodedPath}`, {
       method: 'POST',
@@ -75,8 +99,16 @@ class UpstashRateLimitStore implements RateLimitStore {
       throw new Error(`Upstash rate-limit request failed with status ${response.status}`);
     }
 
-    const payload = (await response.json()) as { result?: T };
-    return payload.result as T;
+    const payload = (await response.json()) as { result?: unknown };
+    if (!('result' in payload) || payload.result === undefined) {
+      throw new Error('Upstash rate-limit response did not include a result');
+    }
+
+    if (!validate(payload.result)) {
+      throw new Error('Upstash rate-limit response returned an unexpected result shape');
+    }
+
+    return payload.result;
   }
 
   async check(
@@ -84,29 +116,61 @@ class UpstashRateLimitStore implements RateLimitStore {
     maxRequests: number,
     windowMs: number
   ): Promise<RateLimitResult> {
-    const count = Number(await this.command<number>('INCR', key));
-
-    let ttlMs = windowMs;
-    if (count === 1) {
-      await this.command<number>('PEXPIRE', key, String(windowMs));
-    } else {
-      ttlMs = Number(await this.command<number>('PTTL', key));
-      if (ttlMs < 0) {
-        await this.command<number>('PEXPIRE', key, String(windowMs));
-        ttlMs = windowMs;
-      }
-    }
+    const now = Date.now();
+    const [count, ttlMs] = await this.command(
+      isRateLimitScriptResult,
+      'EVAL',
+      RATE_LIMIT_LUA_SCRIPT,
+      '1',
+      key,
+      String(windowMs)
+    );
+    const normalizedTtlMs = Math.max(0, ttlMs);
+    const resetAt = now + normalizedTtlMs;
 
     if (count <= maxRequests) {
-      return { allowed: true, remaining: maxRequests - count, retryAfterSeconds: 0 };
+      return {
+        allowed: true,
+        limit: maxRequests,
+        remaining: maxRequests - count,
+        retryAfterSeconds: 0,
+        resetAt,
+      };
     }
 
     return {
       allowed: false,
+      limit: maxRequests,
       remaining: 0,
-      retryAfterSeconds: Math.max(1, Math.ceil(ttlMs / 1000)),
+      retryAfterSeconds: Math.max(1, Math.ceil(normalizedTtlMs / 1000)),
+      resetAt,
     };
   }
+}
+
+const RATE_LIMIT_LUA_SCRIPT = `
+local current = redis.call('INCR', KEYS[1])
+local ttl = redis.call('PTTL', KEYS[1])
+
+if current == 1 or ttl < 0 then
+  redis.call('PEXPIRE', KEYS[1], ARGV[1])
+  ttl = tonumber(ARGV[1])
+end
+
+return { current, ttl }
+`.trim();
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isRateLimitScriptResult(value: unknown): value is [number, number] {
+  return (
+    Array.isArray(value) &&
+    value.length === 2 &&
+    isFiniteNumber(value[0]) &&
+    isFiniteNumber(value[1])
+  );
 }
 
 const memoryStore = new MemoryRateLimitStore();
