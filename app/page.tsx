@@ -4,8 +4,21 @@ import Link from 'next/link';
 import HuntCard from '@/components/hunt-card';
 import SubmitForm from '@/components/submit-form';
 import { FEATURED_HUNT_IDS } from '@/lib/featured';
-import { getPublishedHuntSummaries } from '@/lib/hunts';
+import { getPublishedHuntSummaries, type HuntSummary } from '@/lib/hunts';
 import { fetchStatsFromService } from '@/lib/stats-client';
+
+async function fetchFeaturedHunts(allHunts: HuntSummary[]): Promise<HuntSummary[]> {
+  try {
+    const { getFeaturedHunts } = await import('@/lib/db/queries');
+    const featured = await getFeaturedHunts();
+    if (featured.length > 0) return featured;
+  } catch {
+    // DB unavailable — fall back to hardcoded list
+  }
+  return FEATURED_HUNT_IDS
+    .map((id) => allHunts.find((h) => h.filePath === id))
+    .filter((h): h is HuntSummary => h != null);
+}
 
 async function fetchTotalDownloads(): Promise<string> {
   const result = await fetchStatsFromService({
@@ -31,9 +44,7 @@ export default async function HomePage() {
     fetchTotalDownloads(),
   ]);
 
-  const featuredHunts = FEATURED_HUNT_IDS
-    .map((id) => hunts.find((hunt) => hunt.filePath === id))
-    .filter((hunt) => hunt != null);
+  const featuredHunts = await fetchFeaturedHunts(hunts);
 
   return (
     <>
