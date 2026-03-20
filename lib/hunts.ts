@@ -1,4 +1,11 @@
-export const PUBLISHED_DIRS = ['smoke', 'auth', 'forms', 'admin', 'e-commerce', 'saas', 'accessibility'] as const;
+import * as dbQueries from '@/lib/db/queries';
+import {
+  getPublishedHuntsFromFs,
+  getPublishedHuntSummariesFromFs,
+  readPublishedHuntFromFs,
+} from '@/lib/hunts-fs';
+
+export const PUBLISHED_DIRS = ['smoke', 'auth', 'forms', 'admin', 'e-commerce', 'saas', 'accessibility', 'docs'] as const;
 
 export type HuntCategory = (typeof PUBLISHED_DIRS)[number];
 
@@ -21,13 +28,6 @@ export interface HuntSummary {
 export interface HuntRecord extends HuntSummary {
   content: string;
 }
-
-import * as dbQueries from '@/lib/db/queries';
-import {
-  getPublishedHuntsFromFs,
-  getPublishedHuntSummariesFromFs,
-  readPublishedHuntFromFs,
-} from '@/lib/hunts-fs';
 
 export async function getPublishedHunts(): Promise<HuntRecord[]> {
   try {
@@ -54,6 +54,15 @@ export async function readPublishedHunt(rawPath: string): Promise<string | null>
     console.warn('[hunts] Database unavailable, falling back to filesystem');
     return readPublishedHuntFromFs(rawPath);
   }
+}
+
+export async function getPublishedHuntById(id: string): Promise<HuntRecord | null> {
+  const hunts = await getPublishedHunts();
+  return hunts.find((hunt) => hunt.id === id) ?? null;
+}
+
+export function getHuntDownloadUrl(filePath: string): string {
+  return `/api/hunts/file?path=${encodeURIComponent(filePath)}`;
 }
 
 export { sanitizePublishedPath } from '@/lib/hunts-fs';

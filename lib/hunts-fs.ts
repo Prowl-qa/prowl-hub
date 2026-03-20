@@ -2,8 +2,15 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 import type { HuntCategory, HuntSummary, HuntRecord } from '@/lib/hunts';
+import {
+  countAssertions,
+  countSteps,
+  getFieldValue,
+  getTagValues,
+  toDisplayTitle,
+} from '@/lib/yaml-parser';
 
-const PUBLISHED_DIRS = ['smoke', 'auth', 'forms', 'admin', 'e-commerce', 'saas', 'accessibility'] as const;
+const PUBLISHED_DIRS = ['smoke', 'auth', 'forms', 'admin', 'e-commerce', 'saas', 'accessibility', 'docs'] as const;
 
 const CATEGORY_LABELS: Record<HuntCategory, string> = {
   smoke: 'Smoke Tests',
@@ -13,48 +20,12 @@ const CATEGORY_LABELS: Record<HuntCategory, string> = {
   'e-commerce': 'E-commerce',
   saas: 'SaaS',
   accessibility: 'Accessibility',
+  docs: 'Docs',
 };
 
 const rootDir = process.cwd();
 const HUNTS_ROOT = rootDir;
 const newThresholdMs = 30 * 24 * 60 * 60 * 1000;
-
-function getFieldValue(content: string, key: string) {
-  const match = content.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
-  return match ? match[1].trim() : '';
-}
-
-function extractSection(content: string, key: string) {
-  const lines = content.split('\n');
-  const section: string[] = [];
-  let inSection = false;
-  for (const line of lines) {
-    if (!inSection) {
-      if (line.startsWith(`${key}:`)) inSection = true;
-      continue;
-    }
-    if (/^[a-zA-Z0-9_-]+:\s*/.test(line)) break;
-    section.push(line);
-  }
-  return section;
-}
-
-function countEntries(lines: string[]) {
-  return lines.filter((line) => /^\s*-\s+(?!#).+/.test(line)).length;
-}
-
-function getTagValues(content: string): string[] {
-  const lines = extractSection(content, 'tags');
-  return lines
-    .filter((line) => /^\s*-\s+/.test(line))
-    .map((line) => line.replace(/^\s*-\s+/, '').trim())
-    .filter((tag) => Boolean(tag) && !tag.startsWith('#'));
-}
-
-function toDisplayTitle(name: string, fallbackFilename: string) {
-  const raw = name || fallbackFilename.replace(/\.yml$/, '');
-  return raw.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
-}
 
 export async function getPublishedHuntsFromFs(): Promise<HuntRecord[]> {
   const hunts: HuntRecord[] = [];
@@ -84,8 +55,8 @@ export async function getPublishedHuntsFromFs(): Promise<HuntRecord[]> {
           category,
           categoryLabel: CATEGORY_LABELS[category],
           filePath,
-          stepCount: countEntries(extractSection(content, 'steps')),
-          assertionCount: countEntries(extractSection(content, 'assertions')),
+          stepCount: countSteps(content),
+          assertionCount: countAssertions(content),
           updatedAt: stats.mtime.toISOString(),
           isVerified: true,
           isNew: Date.now() - stats.mtimeMs <= newThresholdMs,
@@ -98,9 +69,7 @@ export async function getPublishedHuntsFromFs(): Promise<HuntRecord[]> {
     }
   }
 
-  return hunts
-    .filter((h) => h.isVerified)
-    .sort((a, b) => a.title.localeCompare(b.title));
+  return hunts.sort((a, b) => a.title.localeCompare(b.title));
 }
 
 export async function getPublishedHuntSummariesFromFs(): Promise<HuntSummary[]> {

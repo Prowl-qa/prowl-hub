@@ -7,7 +7,7 @@ import * as schema from '../lib/db/schema';
 async function main() {
   const filePath = process.argv[2];
   if (!filePath) {
-    console.error('Usage: npx tsx scripts/delete-from-db.ts <category/file.yml>');
+    console.error('Usage: tsx scripts/delete-from-db.ts <category/file.yml>');
     process.exit(1);
   }
 

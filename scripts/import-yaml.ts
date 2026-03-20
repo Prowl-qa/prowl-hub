@@ -4,13 +4,14 @@ import path from 'node:path';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 
+import { FEATURED_HUNT_IDS } from '../lib/featured';
 import * as schema from '../lib/db/schema';
 import { parseHuntYaml, getFieldValue } from '../lib/yaml-parser';
 
 async function main() {
   const filePath = process.argv[2];
   if (!filePath) {
-    console.error('Usage: npx tsx scripts/import-yaml.ts <category/file.yml>');
+    console.error('Usage: tsx scripts/import-yaml.ts <category/file.yml>');
     process.exit(1);
   }
 
@@ -28,31 +29,16 @@ async function main() {
 
   const parsed = parseHuntYaml(content, filename);
   const slug = getFieldValue(content, 'name') || filename.replace(/\.yml$/, '');
+  const isFeatured = FEATURED_HUNT_IDS.includes(filePath);
 
   const pool = new pg.Pool({ connectionString: databaseUrl });
   const db = drizzle(pool, { schema });
 
-  await db
-    .insert(schema.hunts)
-    .values({
-      slug,
-      name: parsed.name,
-      title: parsed.title,
-      description: parsed.description,
-      category,
-      filePath,
-      tags: parsed.tags,
-      steps: parsed.steps,
-      assertions: parsed.assertions,
-      content,
-      stepCount: parsed.stepCount,
-      assertionCount: parsed.assertionCount,
-      isVerified: true,
-      isFeatured: false,
-    })
-    .onConflictDoUpdate({
-      target: schema.hunts.slug,
-      set: {
+  try {
+    await db
+      .insert(schema.hunts)
+      .values({
+        slug,
         name: parsed.name,
         title: parsed.title,
         description: parsed.description,
@@ -64,12 +50,31 @@ async function main() {
         content,
         stepCount: parsed.stepCount,
         assertionCount: parsed.assertionCount,
-        updatedAt: new Date(),
-      },
-    });
+        isVerified: true,
+        isFeatured,
+      })
+      .onConflictDoUpdate({
+        target: schema.hunts.slug,
+        set: {
+          name: parsed.name,
+          title: parsed.title,
+          description: parsed.description,
+          category,
+          filePath,
+          tags: parsed.tags,
+          steps: parsed.steps,
+          assertions: parsed.assertions,
+          content,
+          stepCount: parsed.stepCount,
+          assertionCount: parsed.assertionCount,
+          updatedAt: new Date(),
+        },
+      });
 
-  console.log(`Imported: ${filePath}`);
-  await pool.end();
+    console.log(`Imported: ${filePath}`);
+  } finally {
+    await pool.end();
+  }
 }
 
 main().catch((err) => {

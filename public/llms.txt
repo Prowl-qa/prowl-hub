@@ -1,0 +1,21 @@
+# Prowl QA Hub
+> A curated registry of verified QA hunt templates for browser testing.
+
+## API
+- GET /api/hunts — Full catalog (JSON)
+- GET /api/hunts/search?q=&category=&tags=&limit=&offset= — Search
+- GET /api/hunts/{id} — Single hunt with content
+- GET /api/hunts/file?path= — Download raw YAML
+- GET /api/openapi.json — OpenAPI 3.0 specification
+
+## Categories
+smoke, auth, forms, admin, e-commerce, saas, accessibility, docs
+
+## Schema
+Each hunt template includes: name, description, tags, steps, assertions, and optional vars.
+
+## Usage
+1. Search for hunts matching your testing need
+2. Download the YAML template
+3. Customize {{VAR}} placeholders for your application
+4. Run with prowlqa: prowlqa run <hunt-name>
