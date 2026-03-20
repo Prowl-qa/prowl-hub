@@ -16,10 +16,17 @@ const shouldUseSsl =
   databaseSsl === '1' ||
   databaseSsl === 'true' ||
   databaseSsl === 'require';
+const databaseCaCert = process.env.DATABASE_CA_CERT?.replace(/\\n/g, '\n');
+
+const sslConfig = shouldUseSsl
+  ? databaseCaCert
+    ? { rejectUnauthorized: true, ca: databaseCaCert }
+    : { rejectUnauthorized: true }
+  : undefined;
 
 const pool = new pg.Pool({
   ...(databaseUrl ? { connectionString: databaseUrl } : {}),
-  ...(shouldUseSsl ? { ssl: { rejectUnauthorized: false } } : {}),
+  ...(sslConfig ? { ssl: sslConfig } : {}),
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,

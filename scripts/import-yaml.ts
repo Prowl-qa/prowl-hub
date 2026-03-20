@@ -64,12 +64,13 @@ async function main() {
           tags: parsed.tags,
           steps: parsed.steps,
           assertions: parsed.assertions,
-          content,
-          stepCount: parsed.stepCount,
-          assertionCount: parsed.assertionCount,
-          updatedAt: new Date(),
-        },
-      });
+        content,
+        stepCount: parsed.stepCount,
+        assertionCount: parsed.assertionCount,
+        isFeatured,
+        updatedAt: new Date(),
+      },
+    });
 
     console.log(`Imported: ${filePath}`);
   } finally {
