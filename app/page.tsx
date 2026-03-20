@@ -4,12 +4,12 @@ import Link from 'next/link';
 import HuntCard from '@/components/hunt-card';
 import SubmitForm from '@/components/submit-form';
 import { FEATURED_HUNT_IDS } from '@/lib/featured';
+import { getFeaturedHunts } from '@/lib/db/queries';
 import { getPublishedHuntSummaries, type HuntSummary } from '@/lib/hunts';
 import { fetchStatsFromService } from '@/lib/stats-client';
 
 async function fetchFeaturedHunts(allHunts: HuntSummary[]): Promise<HuntSummary[]> {
   try {
-    const { getFeaturedHunts } = await import('@/lib/db/queries');
     const featured = await getFeaturedHunts();
     if (featured.length > 0) return featured;
   } catch {

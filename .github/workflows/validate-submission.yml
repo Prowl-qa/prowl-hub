@@ -16,7 +16,7 @@ jobs:
             ! -name '*.yml' ! -name '*.md' ! -name '*.html' ! -name '*.css' ! -name '*.js' \
             ! -name '*.mjs' ! -name '*.ts' ! -name '*.tsx' ! -name '*.d.ts' ! -name '*.json' ! -name '*.sql' \
             ! -name '*.svg' ! -name '*.png' ! -name '*.jpg' ! -name '*.jpeg' ! -name '*.webp' \
-            ! -name 'LICENSE' ! -name '.gitignore' \
+            ! -name 'LICENSE' ! -name '.gitignore' ! -name 'llms.txt' \
             | head -20)
           if [ -n "$INVALID_FILES" ]; then
             echo "::error::Unexpected file types detected in submission:"
@@ -111,7 +111,7 @@ jobs:
 
       - name: Validate hunt schema
         run: |
-          HUNT_DIRS="smoke auth forms admin e-commerce saas accessibility"
+          HUNT_DIRS="smoke auth forms admin e-commerce saas accessibility docs"
           ERRORS=""
           for dir in $HUNT_DIRS; do
             [ -d "$dir" ] || continue
@@ -125,6 +125,10 @@ jobs:
               'navigate', 'click', 'wait', 'fill', 'select',
               'waitForUrl', 'waitForNetworkIdle', 'assert',
               'runHunt', 'iframe_action', 'onDialog',
+              'waitForSelector', 'screenshot', 'hover', 'scroll',
+              'scrollTo', 'type', 'setInputFiles',
+              'if', 'repeat', 'mockRoute', 'unmockRoute',
+              'assertScreenshot', 'selectOption', 'press',
           }
 
           with open(file) as f:
@@ -187,7 +191,7 @@ jobs:
 
       - name: Validate filename matches name field
         run: |
-          HUNT_DIRS="smoke auth forms admin e-commerce saas accessibility"
+          HUNT_DIRS="smoke auth forms admin e-commerce saas accessibility docs"
           ERRORS=""
           for dir in $HUNT_DIRS; do
             [ -d "$dir" ] || continue

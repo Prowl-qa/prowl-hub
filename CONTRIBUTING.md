@@ -67,6 +67,21 @@ assertions:
 | `assert` | Inline assertion (`visible`, `notVisible`, `urlIncludes`) |
 | `runHunt` | Compose another hunt as a sub-step |
 | `iframe_action` | Interact with elements inside an iframe |
+| `onDialog` | Handle browser dialogs (`accept` or `dismiss`) |
+| `waitForSelector` | Wait for a CSS selector to appear |
+| `screenshot` | Capture a screenshot of the current page |
+| `hover` | Hover over an element |
+| `scroll` | Scroll the current page viewport |
+| `scrollTo` | Scroll to an element using a selector |
+| `type` | Type text into the active element |
+| `setInputFiles` | Attach file(s) to a file input |
+| `if` | Run conditional steps based on a check |
+| `repeat` | Repeat a block of steps multiple times |
+| `mockRoute` | Mock a network route/response |
+| `unmockRoute` | Remove a previously configured route mock |
+| `assertScreenshot` | Assert screenshot output against baseline |
+| `selectOption` | Select a value in a dropdown by selector |
+| `press` | Press a keyboard key (e.g., `Enter`, `Tab`) |
 
 ## Tags
 
@@ -90,6 +105,9 @@ Every template must include at least one tag. Use existing tags when possible:
 | `team` | Team management features |
 | `invite` | Invitation flows |
 | `accessibility` | Accessibility testing |
+| `docs` | Documentation site patterns |
+| `documentation` | Documentation-specific testing |
+| `docusaurus` | Docusaurus-based sites |
 | `smoke` | Quick smoke-test patterns |
 
 New tags are welcome when existing ones don't fit. Keep them lowercase, single-word or hyphenated.
@@ -119,7 +137,7 @@ Selectors must be generic and reusable across apps:
 ## Pull Request Workflow
 
 1. **Fork** the repository
-2. **Add** your `.yml` file to the correct category directory (`auth/`, `admin/`, `e-commerce/`, `saas/`, `accessibility/`)
+2. **Add** your `.yml` file to the correct category directory (`auth/`, `admin/`, `e-commerce/`, `saas/`, `accessibility/`, `docs/`)
 3. **Open a PR** against `main` with a clear description
 4. **CI runs automatically** — fix any failures
 5. **Maintainer reviews** content and security profile
@@ -134,6 +152,7 @@ Selectors must be generic and reusable across apps:
 | `e-commerce/` | Shopping, payments, orders |
 | `saas/` | Teams, billing, onboarding, SaaS-specific |
 | `accessibility/` | Keyboard navigation, focus, screen readers |
+| `docs/` | Documentation sites (Docusaurus, etc.) |
 
 ## What CI Checks
 

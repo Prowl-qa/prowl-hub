@@ -35,6 +35,11 @@ export const hunts = pgTable(
   (table) => [
     index('idx_hunts_category').on(table.category),
     index('idx_hunts_is_featured').on(table.isFeatured).where(sql`is_featured = true`),
+    index('idx_hunts_tags').using('gin', table.tags),
+    index('idx_hunts_search').using(
+      'gin',
+      sql`to_tsvector('english', coalesce(${table.title}, '') || ' ' || coalesce(${table.description}, '') || ' ' || coalesce(${table.name}, ''))`
+    ),
   ]
 );
 

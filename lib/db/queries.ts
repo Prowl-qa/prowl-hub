@@ -13,9 +13,37 @@ const CATEGORY_LABELS: Record<string, string> = {
   'e-commerce': 'E-commerce',
   saas: 'SaaS',
   accessibility: 'Accessibility',
+  docs: 'Docs',
 };
 
-function toSummary(row: Hunt): HuntSummary {
+type HuntSummaryRow = Pick<
+  Hunt,
+  | 'title'
+  | 'name'
+  | 'description'
+  | 'category'
+  | 'filePath'
+  | 'stepCount'
+  | 'assertionCount'
+  | 'updatedAt'
+  | 'isVerified'
+  | 'tags'
+>;
+
+const huntSummarySelection = {
+  title: hunts.title,
+  name: hunts.name,
+  description: hunts.description,
+  category: hunts.category,
+  filePath: hunts.filePath,
+  stepCount: hunts.stepCount,
+  assertionCount: hunts.assertionCount,
+  updatedAt: hunts.updatedAt,
+  isVerified: hunts.isVerified,
+  tags: hunts.tags,
+};
+
+function toSummary(row: HuntSummaryRow): HuntSummary {
   return {
     id: row.filePath.replace(/[/.]/g, '-'),
     title: row.title,
@@ -52,7 +80,7 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
 
 export async function getPublishedHuntSummaries(): Promise<HuntSummary[]> {
   const rows = await db
-    .select()
+    .select(huntSummarySelection)
     .from(hunts)
     .where(eq(hunts.isVerified, true))
     .orderBy(hunts.title);
@@ -62,7 +90,7 @@ export async function getPublishedHuntSummaries(): Promise<HuntSummary[]> {
 
 export async function getFeaturedHunts(): Promise<HuntSummary[]> {
   const rows = await db
-    .select()
+    .select(huntSummarySelection)
     .from(hunts)
     .where(and(eq(hunts.isVerified, true), eq(hunts.isFeatured, true)))
     .orderBy(hunts.title);
@@ -111,7 +139,7 @@ export async function searchHunts(opts: SearchOptions) {
   }
   if (opts.q) {
     conditions.push(
-      sql`to_tsvector('english', ${hunts.title} || ' ' || ${hunts.description} || ' ' || ${hunts.name}) @@ plainto_tsquery('english', ${opts.q})`
+      sql`to_tsvector('english', coalesce(${hunts.title}, '') || ' ' || coalesce(${hunts.description}, '') || ' ' || coalesce(${hunts.name}, '')) @@ plainto_tsquery('english', ${opts.q})`
     );
   }
 
@@ -121,7 +149,7 @@ export async function searchHunts(opts: SearchOptions) {
 
   const [rows, countResult] = await Promise.all([
     db
-      .select()
+      .select(huntSummarySelection)
       .from(hunts)
       .where(where)
       .orderBy(hunts.title)

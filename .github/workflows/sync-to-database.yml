@@ -11,6 +11,7 @@ on:
       - 'e-commerce/**/*.yml'
       - 'saas/**/*.yml'
       - 'accessibility/**/*.yml'
+      - 'docs/**/*.yml'
 
 jobs:
   sync:
@@ -18,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -30,14 +31,20 @@ jobs:
       - name: Detect changed and deleted YAML files
         id: changes
         run: |
-          DIRS="smoke auth forms admin e-commerce saas accessibility"
+          DIRS="smoke auth forms admin e-commerce saas accessibility docs"
           PATTERN=""
           for dir in $DIRS; do
             PATTERN="${PATTERN} ${dir}/"
           done
 
-          CHANGED=$(git diff --name-only --diff-filter=ACMR HEAD~1 HEAD -- $PATTERN | grep '\.yml$' || true)
-          DELETED=$(git diff --name-only --diff-filter=D HEAD~1 HEAD -- $PATTERN | grep '\.yml$' || true)
+          BASE_SHA="${{ github.event.before }}"
+          HEAD_SHA="${{ github.event.after }}"
+          if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            BASE_SHA="$(git rev-list --max-parents=0 "$HEAD_SHA")"
+          fi
+
+          CHANGED=$(git diff --name-only --diff-filter=ACMR "$BASE_SHA" "$HEAD_SHA" -- $PATTERN | grep '\.yml$' || true)
+          DELETED=$(git diff --name-only --diff-filter=D "$BASE_SHA" "$HEAD_SHA" -- $PATTERN | grep '\.yml$' || true)
 
           echo "changed<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGED" >> $GITHUB_OUTPUT
@@ -52,10 +59,11 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
+          set -e
           while IFS= read -r file; do
             [ -z "$file" ] && continue
             echo "Importing: $file"
-            npx tsx scripts/import-yaml.ts "$file"
+            ./node_modules/.bin/tsx scripts/import-yaml.ts "$file"
           done <<< "${{ steps.changes.outputs.changed }}"
 
       - name: Delete removed files
@@ -63,8 +71,9 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
+          set -e
           while IFS= read -r file; do
             [ -z "$file" ] && continue
             echo "Deleting: $file"
-            npx tsx scripts/delete-from-db.ts "$file"
+            ./node_modules/.bin/tsx scripts/delete-from-db.ts "$file"
           done <<< "${{ steps.changes.outputs.deleted }}"
