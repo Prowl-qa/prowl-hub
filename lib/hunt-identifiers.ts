@@ -1,7 +1,15 @@
+import path from 'node:path';
+
 import { PUBLISHED_DIRS } from './constants';
+
+const SORTED_PUBLISHED_DIRS = [...PUBLISHED_DIRS].sort((a, b) => b.length - a.length);
 
 export function getHuntId(filePath: string): string {
   return filePath.replace(/[/.]/g, '-');
+}
+
+export function getHuntSlug(filePath: string): string {
+  return getHuntId(filePath).replace(/-yml$/, '');
 }
 
 export function getFilePathFromHuntId(id: string): string | null {
@@ -9,7 +17,7 @@ export function getFilePathFromHuntId(id: string): string | null {
     return null;
   }
 
-  for (const category of PUBLISHED_DIRS) {
+  for (const category of SORTED_PUBLISHED_DIRS) {
     const prefix = `${category}-`;
     if (id.startsWith(prefix)) {
       const basename = id.slice(prefix.length, -'-yml'.length);
@@ -23,11 +31,25 @@ export function getFilePathFromHuntId(id: string): string | null {
   return null;
 }
 
-export function getCategoryScopedSlug(
-  category: string,
-  name: string,
-  fallbackFilename: string
-): string {
-  const baseSlug = name || fallbackFilename.replace(/\.yml$/, '');
-  return `${category}-${baseSlug}`;
+export function normalizePublishedFilePath(rawPath: string): string | null {
+  const normalized = path.posix
+    .normalize(rawPath.replace(/\\/g, '/'))
+    .replace(/^([.][.]\/)+/, '')
+    .replace(/^\/+/, '');
+
+  const rawSegments = normalized.split('/').filter(Boolean);
+  const segments =
+    rawSegments[0] === '.prowlqa' && rawSegments[1] === 'hunts' ? rawSegments.slice(2) : rawSegments;
+
+  if (segments.length < 2) {
+    return null;
+  }
+
+  const [category, ...rest] = segments;
+  if (!PUBLISHED_DIRS.includes(category as (typeof PUBLISHED_DIRS)[number])) {
+    return null;
+  }
+
+  const publishedPath = `${category}/${rest.join('/')}`;
+  return publishedPath.endsWith('.yml') ? publishedPath : null;
 }

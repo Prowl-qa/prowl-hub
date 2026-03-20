@@ -1,5 +1,6 @@
 import * as dbQueries from '@/lib/db/queries';
 import { PUBLISHED_DIRS } from '@/lib/constants';
+import { normalizePublishedFilePath } from '@/lib/hunt-identifiers';
 import {
   getPublishedHuntByIdFromFs,
   getPublishedHuntsFromFs,
@@ -48,11 +49,16 @@ export async function getPublishedHuntSummaries(): Promise<HuntSummary[]> {
 }
 
 export async function readPublishedHunt(rawPath: string): Promise<string | null> {
+  const filePath = normalizePublishedFilePath(rawPath);
+  if (!filePath) {
+    return null;
+  }
+
   try {
-    return await dbQueries.getHuntContent(rawPath);
+    return await dbQueries.getHuntContent(filePath);
   } catch {
     console.warn('[hunts] Database unavailable, falling back to filesystem');
-    return readPublishedHuntFromFs(rawPath);
+    return readPublishedHuntFromFs(filePath);
   }
 }
 
