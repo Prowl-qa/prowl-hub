@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 import { PUBLISHED_DIRS } from '@/lib/constants';
-import { getFilePathFromHuntId, getHuntId } from '@/lib/hunt-identifiers';
+import { getFilePathFromHuntId, getHuntId, normalizePublishedFilePath } from '@/lib/hunt-identifiers';
 import type { HuntCategory, HuntSummary, HuntRecord } from '@/lib/hunts';
 import {
   countAssertions,
@@ -75,20 +75,10 @@ function isPathWithin(parent: string, child: string): boolean {
 }
 
 export function sanitizePublishedPath(rawPath: string): string | null {
-  const normalized = path
-    .normalize(rawPath)
-    .replace(/^([.][.][/\\])+/, '')
-    .replace(/^[/\\]+/, '');
+  const normalizedPath = normalizePublishedFilePath(path.normalize(rawPath));
+  if (!normalizedPath) return null;
 
-  const rawSegments = normalized.split(/[\\/]+/).filter(Boolean);
-  const segments =
-    rawSegments[0] === '.prowlqa' && rawSegments[1] === 'hunts' ? rawSegments.slice(2) : rawSegments;
-
-  if (segments.length < 2) return null;
-
-  const [category, ...rest] = segments;
-  if (!PUBLISHED_DIRS.includes(category as HuntCategory)) return null;
-
+  const [category, ...rest] = normalizedPath.split('/');
   const resolved = path.resolve(HUNTS_ROOT, path.join(category, ...rest));
   const allowedPrefix = path.join(HUNTS_ROOT, category) + path.sep;
   if (!resolved.startsWith(allowedPrefix) || path.extname(resolved) !== '.yml') return null;

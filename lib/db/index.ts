@@ -10,7 +10,17 @@ if (!databaseUrl) {
   );
 }
 
-const pool = createPool(databaseUrl);
+const pool = databaseUrl ? createPool(databaseUrl) : null;
 
-export const db = drizzle(pool, { schema });
+const db = pool ? drizzle(pool, { schema }) : null;
+
+export function getDb() {
+  if (!db) {
+    throw new Error('DATABASE_URL is not configured');
+  }
+
+  return db;
+}
+
+export { db };
 export { schema };

@@ -3,7 +3,7 @@ import { eq, and, sql, type SQL } from 'drizzle-orm';
 import { getFilePathFromHuntId, getHuntId } from '@/lib/hunt-identifiers';
 import type { HuntCategory, HuntSummary, HuntRecord } from '@/lib/hunts';
 
-import { db } from './index';
+import { getDb } from './index';
 import { hunts, type Hunt } from './schema';
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -70,7 +70,7 @@ function toRecord(row: Hunt): HuntRecord {
 }
 
 export async function getPublishedHunts(): Promise<HuntRecord[]> {
-  const rows = await db
+  const rows = await getDb()
     .select()
     .from(hunts)
     .where(eq(hunts.isVerified, true))
@@ -80,7 +80,7 @@ export async function getPublishedHunts(): Promise<HuntRecord[]> {
 }
 
 export async function getPublishedHuntSummaries(): Promise<HuntSummary[]> {
-  const rows = await db
+  const rows = await getDb()
     .select(huntSummarySelection)
     .from(hunts)
     .where(eq(hunts.isVerified, true))
@@ -90,7 +90,7 @@ export async function getPublishedHuntSummaries(): Promise<HuntSummary[]> {
 }
 
 export async function getFeaturedHunts(): Promise<HuntSummary[]> {
-  const rows = await db
+  const rows = await getDb()
     .select(huntSummarySelection)
     .from(hunts)
     .where(and(eq(hunts.isVerified, true), eq(hunts.isFeatured, true)))
@@ -100,7 +100,7 @@ export async function getFeaturedHunts(): Promise<HuntSummary[]> {
 }
 
 export async function getHuntContent(filePath: string): Promise<string | null> {
-  const rows = await db
+  const rows = await getDb()
     .select({ content: hunts.content })
     .from(hunts)
     .where(and(eq(hunts.filePath, filePath), eq(hunts.isVerified, true)))
@@ -110,7 +110,7 @@ export async function getHuntContent(filePath: string): Promise<string | null> {
 }
 
 export async function getHuntBySlug(slug: string): Promise<HuntRecord | null> {
-  const rows = await db
+  const rows = await getDb()
     .select()
     .from(hunts)
     .where(and(eq(hunts.slug, slug), eq(hunts.isVerified, true)))
@@ -125,7 +125,7 @@ export async function getHuntById(id: string): Promise<HuntRecord | null> {
     return null;
   }
 
-  const rows = await db
+  const rows = await getDb()
     .select()
     .from(hunts)
     .where(and(eq(hunts.filePath, filePath), eq(hunts.isVerified, true)))
@@ -144,6 +144,7 @@ interface SearchOptions {
 
 export async function searchHunts(opts: SearchOptions) {
   const conditions: SQL[] = [eq(hunts.isVerified, true)];
+  const database = getDb();
 
   if (opts.category) {
     conditions.push(eq(hunts.category, opts.category));
@@ -164,14 +165,14 @@ export async function searchHunts(opts: SearchOptions) {
   const offset = opts.offset ?? 0;
 
   const [rows, countResult] = await Promise.all([
-    db
+    database
       .select(huntSummarySelection)
       .from(hunts)
       .where(where)
       .orderBy(hunts.title)
       .limit(limit)
       .offset(offset),
-    db
+    database
       .select({ count: sql<number>`count(*)` })
       .from(hunts)
       .where(where),
@@ -184,7 +185,7 @@ export async function searchHunts(opts: SearchOptions) {
 }
 
 export async function deleteHuntByFilePath(filePath: string): Promise<boolean> {
-  const result = await db
+  const result = await getDb()
     .delete(hunts)
     .where(eq(hunts.filePath, filePath))
     .returning({ id: hunts.id });
