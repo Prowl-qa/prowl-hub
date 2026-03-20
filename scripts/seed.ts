@@ -6,6 +6,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { createPool } from '../lib/db/create-pool';
 import { PUBLISHED_DIRS } from '../lib/constants';
 import { FEATURED_HUNT_IDS } from '../lib/featured';
+import { getCategoryScopedSlug } from '../lib/hunt-identifiers';
 import * as schema from '../lib/db/schema';
 import { parseHuntYaml, getFieldValue } from '../lib/yaml-parser';
 
@@ -45,7 +46,7 @@ async function main() {
           const absolutePath = path.join(categoryPath, file);
           const content = await fs.readFile(absolutePath, 'utf8');
           const parsed = parseHuntYaml(content, file);
-          const slug = getFieldValue(content, 'name') || file.replace(/\.yml$/, '');
+          const slug = getCategoryScopedSlug(category, getFieldValue(content, 'name'), file);
 
           await db
             .insert(schema.hunts)

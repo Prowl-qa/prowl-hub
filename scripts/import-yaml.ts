@@ -5,6 +5,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 
 import { createPool } from '../lib/db/create-pool';
 import { FEATURED_HUNT_IDS } from '../lib/featured';
+import { getCategoryScopedSlug } from '../lib/hunt-identifiers';
 import * as schema from '../lib/db/schema';
 import { parseHuntYaml, getFieldValue } from '../lib/yaml-parser';
 
@@ -28,7 +29,7 @@ async function main() {
   const category = filePath.split('/')[0];
 
   const parsed = parseHuntYaml(content, filename);
-  const slug = getFieldValue(content, 'name') || filename.replace(/\.yml$/, '');
+  const slug = getCategoryScopedSlug(category, getFieldValue(content, 'name'), filename);
   const isFeatured = FEATURED_HUNT_IDS.includes(filePath);
 
   const pool = createPool(databaseUrl);

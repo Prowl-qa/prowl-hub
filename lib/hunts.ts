@@ -1,6 +1,7 @@
 import * as dbQueries from '@/lib/db/queries';
 import { PUBLISHED_DIRS } from '@/lib/constants';
 import {
+  getPublishedHuntByIdFromFs,
   getPublishedHuntsFromFs,
   getPublishedHuntSummariesFromFs,
   readPublishedHuntFromFs,
@@ -60,8 +61,7 @@ export async function getPublishedHuntById(id: string): Promise<HuntRecord | nul
     return await dbQueries.getHuntById(id);
   } catch {
     console.warn('[hunts] Database unavailable, falling back to filesystem');
-    const hunts = await getPublishedHuntsFromFs();
-    return hunts.find((hunt) => hunt.id === id) ?? null;
+    return getPublishedHuntByIdFromFs(id);
   }
 }
 

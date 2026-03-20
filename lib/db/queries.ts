@@ -1,6 +1,6 @@
 import { eq, and, sql, type SQL } from 'drizzle-orm';
 
-import { PUBLISHED_DIRS } from '@/lib/constants';
+import { getFilePathFromHuntId, getHuntId } from '@/lib/hunt-identifiers';
 import type { HuntCategory, HuntSummary, HuntRecord } from '@/lib/hunts';
 
 import { db } from './index';
@@ -46,7 +46,7 @@ const huntSummarySelection = {
 
 function toSummary(row: HuntSummaryRow): HuntSummary {
   return {
-    id: row.filePath.replace(/[/.]/g, '-'),
+    id: getHuntId(row.filePath),
     title: row.title,
     name: row.name,
     description: row.description,
@@ -113,14 +113,14 @@ export async function getHuntBySlug(slug: string): Promise<HuntRecord | null> {
   const rows = await db
     .select()
     .from(hunts)
-    .where(eq(hunts.slug, slug))
+    .where(and(eq(hunts.slug, slug), eq(hunts.isVerified, true)))
     .limit(1);
 
   return rows[0] ? toRecord(rows[0]) : null;
 }
 
 export async function getHuntById(id: string): Promise<HuntRecord | null> {
-  const filePath = toFilePathFromId(id);
+  const filePath = getFilePathFromHuntId(id);
   if (!filePath) {
     return null;
   }
@@ -132,25 +132,6 @@ export async function getHuntById(id: string): Promise<HuntRecord | null> {
     .limit(1);
 
   return rows[0] ? toRecord(rows[0]) : null;
-}
-
-function toFilePathFromId(id: string): string | null {
-  if (!id.endsWith('-yml')) {
-    return null;
-  }
-
-  for (const category of PUBLISHED_DIRS) {
-    const prefix = `${category}-`;
-    if (id.startsWith(prefix)) {
-      const basename = id.slice(prefix.length, -'-yml'.length);
-      if (!basename) {
-        return null;
-      }
-      return `${category}/${basename}.yml`;
-    }
-  }
-
-  return null;
 }
 
 interface SearchOptions {
