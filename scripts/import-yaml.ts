@@ -2,8 +2,8 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 import { drizzle } from 'drizzle-orm/node-postgres';
-import pg from 'pg';
 
+import { createPool } from '../lib/db/create-pool';
 import { FEATURED_HUNT_IDS } from '../lib/featured';
 import * as schema from '../lib/db/schema';
 import { parseHuntYaml, getFieldValue } from '../lib/yaml-parser';
@@ -31,7 +31,7 @@ async function main() {
   const slug = getFieldValue(content, 'name') || filename.replace(/\.yml$/, '');
   const isFeatured = FEATURED_HUNT_IDS.includes(filePath);
 
-  const pool = new pg.Pool({ connectionString: databaseUrl });
+  const pool = createPool(databaseUrl);
   const db = drizzle(pool, { schema });
 
   try {
@@ -54,8 +54,9 @@ async function main() {
         isFeatured,
       })
       .onConflictDoUpdate({
-        target: schema.hunts.slug,
+        target: schema.hunts.filePath,
         set: {
+          slug,
           name: parsed.name,
           title: parsed.title,
           description: parsed.description,
@@ -64,13 +65,14 @@ async function main() {
           tags: parsed.tags,
           steps: parsed.steps,
           assertions: parsed.assertions,
-        content,
-        stepCount: parsed.stepCount,
-        assertionCount: parsed.assertionCount,
-        isFeatured,
-        updatedAt: new Date(),
-      },
-    });
+          content,
+          stepCount: parsed.stepCount,
+          assertionCount: parsed.assertionCount,
+          isVerified: true,
+          isFeatured,
+          updatedAt: new Date(),
+        },
+      });
 
     console.log(`Imported: ${filePath}`);
   } finally {

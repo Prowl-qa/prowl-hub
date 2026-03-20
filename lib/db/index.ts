@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
-import pg from 'pg';
 
 import * as schema from './schema';
+import { createPool } from './create-pool';
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -10,27 +10,7 @@ if (!databaseUrl) {
   );
 }
 
-const databaseSsl = process.env.DATABASE_SSL?.toLowerCase();
-const shouldUseSsl =
-  process.env.NODE_ENV === 'production' ||
-  databaseSsl === '1' ||
-  databaseSsl === 'true' ||
-  databaseSsl === 'require';
-const databaseCaCert = process.env.DATABASE_CA_CERT?.replace(/\\n/g, '\n');
-
-const sslConfig = shouldUseSsl
-  ? databaseCaCert
-    ? { rejectUnauthorized: true, ca: databaseCaCert }
-    : { rejectUnauthorized: true }
-  : undefined;
-
-const pool = new pg.Pool({
-  ...(databaseUrl ? { connectionString: databaseUrl } : {}),
-  ...(sslConfig ? { ssl: sslConfig } : {}),
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-});
+const pool = createPool(databaseUrl);
 
 export const db = drizzle(pool, { schema });
 export { schema };

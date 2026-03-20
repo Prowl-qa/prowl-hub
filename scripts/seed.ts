@@ -2,8 +2,8 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 import { drizzle } from 'drizzle-orm/node-postgres';
-import pg from 'pg';
 
+import { createPool } from '../lib/db/create-pool';
 import { PUBLISHED_DIRS } from '../lib/constants';
 import { FEATURED_HUNT_IDS } from '../lib/featured';
 import * as schema from '../lib/db/schema';
@@ -16,12 +16,13 @@ async function main() {
     process.exit(1);
   }
 
-  const pool = new pg.Pool({ connectionString: databaseUrl });
+  const pool = createPool(databaseUrl);
   const db = drizzle(pool, { schema });
   try {
     const rootDir = process.cwd();
     let total = 0;
     let errors = 0;
+    let hasFailures = false;
 
     for (const category of PUBLISHED_DIRS) {
       const categoryPath = path.join(rootDir, category);
@@ -29,7 +30,10 @@ async function main() {
       let files: string[];
       try {
         files = await fs.readdir(categoryPath);
-      } catch {
+      } catch (error) {
+        hasFailures = true;
+        errors++;
+        console.error(`[seed] Failed to read category directory: ${categoryPath}`, error);
         continue;
       }
 
@@ -62,8 +66,9 @@ async function main() {
               isFeatured: FEATURED_HUNT_IDS.includes(filePath),
             })
             .onConflictDoUpdate({
-              target: schema.hunts.slug,
+              target: schema.hunts.filePath,
               set: {
+                slug,
                 name: parsed.name,
                 title: parsed.title,
                 description: parsed.description,
@@ -75,6 +80,7 @@ async function main() {
                 content,
                 stepCount: parsed.stepCount,
                 assertionCount: parsed.assertionCount,
+                isVerified: true,
                 isFeatured: FEATURED_HUNT_IDS.includes(filePath),
                 updatedAt: new Date(),
               },
@@ -83,6 +89,7 @@ async function main() {
           total++;
           console.log(`  [ok] ${filePath}`);
         } catch (err) {
+          hasFailures = true;
           errors++;
           console.error(`  [FAIL] ${filePath}:`, err);
         }
@@ -90,6 +97,9 @@ async function main() {
     }
 
     console.log(`\nSeeded ${total} hunts (${errors} errors)`);
+    if (hasFailures) {
+      throw new Error('Seed completed with one or more filesystem or database errors');
+    }
   } finally {
     await pool.end();
   }

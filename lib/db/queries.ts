@@ -1,5 +1,6 @@
 import { eq, and, sql, type SQL } from 'drizzle-orm';
 
+import { PUBLISHED_DIRS } from '@/lib/constants';
 import type { HuntCategory, HuntSummary, HuntRecord } from '@/lib/hunts';
 
 import { db } from './index';
@@ -102,7 +103,7 @@ export async function getHuntContent(filePath: string): Promise<string | null> {
   const rows = await db
     .select({ content: hunts.content })
     .from(hunts)
-    .where(eq(hunts.filePath, filePath))
+    .where(and(eq(hunts.filePath, filePath), eq(hunts.isVerified, true)))
     .limit(1);
 
   return rows[0]?.content ?? null;
@@ -119,18 +120,37 @@ export async function getHuntBySlug(slug: string): Promise<HuntRecord | null> {
 }
 
 export async function getHuntById(id: string): Promise<HuntRecord | null> {
+  const filePath = toFilePathFromId(id);
+  if (!filePath) {
+    return null;
+  }
+
   const rows = await db
     .select()
     .from(hunts)
-    .where(
-      and(
-        eq(hunts.isVerified, true),
-        sql`replace(replace(${hunts.filePath}, '/', '-'), '.', '-') = ${id}`
-      )
-    )
+    .where(and(eq(hunts.filePath, filePath), eq(hunts.isVerified, true)))
     .limit(1);
 
   return rows[0] ? toRecord(rows[0]) : null;
+}
+
+function toFilePathFromId(id: string): string | null {
+  if (!id.endsWith('-yml')) {
+    return null;
+  }
+
+  for (const category of PUBLISHED_DIRS) {
+    const prefix = `${category}-`;
+    if (id.startsWith(prefix)) {
+      const basename = id.slice(prefix.length, -'-yml'.length);
+      if (!basename) {
+        return null;
+      }
+      return `${category}/${basename}.yml`;
+    }
+  }
+
+  return null;
 }
 
 interface SearchOptions {
