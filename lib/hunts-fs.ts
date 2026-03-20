@@ -1,6 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
+import { PUBLISHED_DIRS } from '@/lib/constants';
 import type { HuntCategory, HuntSummary, HuntRecord } from '@/lib/hunts';
 import {
   countAssertions,
@@ -9,8 +10,6 @@ import {
   getTagValues,
   toDisplayTitle,
 } from '@/lib/yaml-parser';
-
-const PUBLISHED_DIRS = ['smoke', 'auth', 'forms', 'admin', 'e-commerce', 'saas', 'accessibility', 'docs'] as const;
 
 const CATEGORY_LABELS: Record<HuntCategory, string> = {
   smoke: 'Smoke Tests',
@@ -98,7 +97,7 @@ export function sanitizePublishedPath(rawPath: string): string | null {
   if (!PUBLISHED_DIRS.includes(category as HuntCategory)) return null;
 
   const resolved = path.resolve(HUNTS_ROOT, path.join(category, ...rest));
-  const allowedPrefix = path.join(HUNTS_ROOT, category, path.sep);
+  const allowedPrefix = path.join(HUNTS_ROOT, category) + path.sep;
   if (!resolved.startsWith(allowedPrefix) || path.extname(resolved) !== '.yml') return null;
 
   return resolved;

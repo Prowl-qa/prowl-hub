@@ -4,20 +4,10 @@ import path from 'node:path';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 
+import { PUBLISHED_DIRS } from '../lib/constants';
 import { FEATURED_HUNT_IDS } from '../lib/featured';
 import * as schema from '../lib/db/schema';
 import { parseHuntYaml, getFieldValue } from '../lib/yaml-parser';
-
-const PUBLISHED_DIRS = [
-  'smoke',
-  'auth',
-  'forms',
-  'admin',
-  'e-commerce',
-  'saas',
-  'accessibility',
-  'docs',
-];
 
 async function main() {
   const databaseUrl = process.env.DATABASE_URL;

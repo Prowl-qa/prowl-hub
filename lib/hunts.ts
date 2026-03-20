@@ -1,11 +1,10 @@
 import * as dbQueries from '@/lib/db/queries';
+import { PUBLISHED_DIRS } from '@/lib/constants';
 import {
   getPublishedHuntsFromFs,
   getPublishedHuntSummariesFromFs,
   readPublishedHuntFromFs,
 } from '@/lib/hunts-fs';
-
-export const PUBLISHED_DIRS = ['smoke', 'auth', 'forms', 'admin', 'e-commerce', 'saas', 'accessibility', 'docs'] as const;
 
 export type HuntCategory = (typeof PUBLISHED_DIRS)[number];
 
@@ -57,8 +56,13 @@ export async function readPublishedHunt(rawPath: string): Promise<string | null>
 }
 
 export async function getPublishedHuntById(id: string): Promise<HuntRecord | null> {
-  const hunts = await getPublishedHunts();
-  return hunts.find((hunt) => hunt.id === id) ?? null;
+  try {
+    return await dbQueries.getHuntById(id);
+  } catch {
+    console.warn('[hunts] Database unavailable, falling back to filesystem');
+    const hunts = await getPublishedHuntsFromFs();
+    return hunts.find((hunt) => hunt.id === id) ?? null;
+  }
 }
 
 export function getHuntDownloadUrl(filePath: string): string {

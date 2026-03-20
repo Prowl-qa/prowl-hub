@@ -118,6 +118,21 @@ export async function getHuntBySlug(slug: string): Promise<HuntRecord | null> {
   return rows[0] ? toRecord(rows[0]) : null;
 }
 
+export async function getHuntById(id: string): Promise<HuntRecord | null> {
+  const rows = await db
+    .select()
+    .from(hunts)
+    .where(
+      and(
+        eq(hunts.isVerified, true),
+        sql`replace(replace(${hunts.filePath}, '/', '-'), '.', '-') = ${id}`
+      )
+    )
+    .limit(1);
+
+  return rows[0] ? toRecord(rows[0]) : null;
+}
+
 interface SearchOptions {
   q?: string;
   category?: string;
