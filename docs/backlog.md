@@ -1,8 +1,6 @@
 # Prowl Hub - Product Backlog
 
 **Repo**: `Prowl-qa/prowl-infra-hub`
-**Local path**: `~/Desktop/Current Projects/Prowl QA/Repositories/prowl-infra-hub`
-**Branch**: `test-run`
 **Stack**: Next.js + YAML templates + GitHub Actions CI
 **License**: Apache 2.0
 
