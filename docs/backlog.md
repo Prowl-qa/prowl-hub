@@ -1,6 +1,6 @@
 # Prowl Hub - Product Backlog
 
-**Repo**: `Prowl-qa/prowl-infra-hub`
+**Repo**: `Prowl-qa/prowl-hub`
 **Stack**: Next.js + YAML templates + GitHub Actions CI
 **License**: Apache 2.0
 
