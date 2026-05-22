@@ -41,7 +41,7 @@ async function fetchTotalDownloads(): Promise<string> {
 export default async function HomePage() {
   const [hunts, totalDownloads] = await Promise.all([
     getPublishedHuntSummaries(),
-    fetchTotalDownloads(),
+    fetchTotalDownloads().catch(() => '-'),
   ]);
 
   const featuredHunts = await fetchFeaturedHunts(hunts);
