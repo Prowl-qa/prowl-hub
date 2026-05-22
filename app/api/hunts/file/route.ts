@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 
 import { readPublishedHunt } from '@/lib/hunts';
 import { trackDownload } from '@/lib/tracking';
@@ -47,14 +47,16 @@ export async function GET(request: Request) {
     const category = segments[0] || '';
     const huntName = (segments[segments.length - 1] || '').replace(/\.yml$/, '');
 
-    trackDownload({
-      huntPath: filePath,
-      category,
-      huntName,
-      userAgent: request.headers.get('user-agent') ?? undefined,
-      referer: request.headers.get('referer') ?? undefined,
-      country: request.headers.get('cf-ipcountry') ?? undefined,
-    });
+    after(() =>
+      trackDownload({
+        huntPath: filePath,
+        category,
+        huntName,
+        userAgent: request.headers.get('user-agent') ?? undefined,
+        referer: request.headers.get('referer') ?? undefined,
+        country: request.headers.get('cf-ipcountry') ?? undefined,
+      })
+    );
   }
 
   return new NextResponse(content, {
