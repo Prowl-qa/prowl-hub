@@ -33,9 +33,6 @@
 {PQH-004} **HUB-012: Hunt Detail Page**
    Create `/browse/[category]/[name]` route showing full YAML, metadata, and related hunts from the same category.
 
-{PQH-006} **HUB-015: Fix `trackDownload` fire-and-forget race on Vercel**
-   `lib/tracking.ts` currently calls `fetch()` without awaiting it. In Vercel's serverless model the function execution context can be torn down before the network POST completes, killing the in-flight tracking request. Empirically observed 2026-05-22 while verifying HUB-014: tracking POSTs from the file download route landed inconsistently in `hub_downloads` (some made it, some were silently dropped by the `AbortController` timeout firing when the function context was already gone). Fix: use Next.js's `after()` API (or `revalidate`/`waitUntil` equivalents on the route handler) inside `app/api/hunts/file/route.ts` to extend the function lifetime until the tracking POST settles. Mirrors prowl-infra-hub's matching item PQIH-023 / INFRA-059.
-
 ## Completed
 
 ### HUB-013: Align hub browser icon with the shared Prowl site icon (completed: 2026-03-21)
