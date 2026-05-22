@@ -20,10 +20,6 @@ async function fetchFeaturedHunts(allHunts: HuntSummary[]): Promise<HuntSummary[
     .filter((h): h is HuntSummary => h != null);
 }
 
-// TODO(PQH-005 / HUB-014): re-enable Total downloads metric once Beelink
-// stats are scoped per-hub. The Beelink counter is currently global, so
-// prowl-hub and prowl-infra-hub both surface the same number. Function is
-// kept here for quick re-enable when scoping lands.
 async function fetchTotalDownloads(): Promise<string> {
   const result = await fetchStatsFromService({
     timeoutMs: 3000,
@@ -42,10 +38,11 @@ async function fetchTotalDownloads(): Promise<string> {
   return count.toLocaleString('en-US');
 }
 
-void fetchTotalDownloads;
-
 export default async function HomePage() {
-  const hunts = await getPublishedHuntSummaries();
+  const [hunts, totalDownloads] = await Promise.all([
+    getPublishedHuntSummaries(),
+    fetchTotalDownloads(),
+  ]);
 
   const featuredHunts = await fetchFeaturedHunts(hunts);
 
@@ -106,7 +103,10 @@ assertions:
           <p>{new Set(hunts.map((hunt) => hunt.category)).size}</p>
           <span>Categories covered</span>
         </article>
-        {/* Total downloads metric temporarily hidden — see PQH-005 / HUB-014. */}
+        <article>
+          <p>{totalDownloads}</p>
+          <span>Total downloads</span>
+        </article>
       </section>
 
       <section className="featured container">
