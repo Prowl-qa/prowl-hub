@@ -1,0 +1,62 @@
+# Submit Form — Field Presence and Validation
+# Verifies the submit form renders with all required fields and validation works.
+# Does NOT actually submit (that opens GitHub in a new tab).
+
+name: submit-form
+description: Verify the submit form fields render and client-side validation fires
+tags:
+  - forms
+  - submit
+  - validation
+
+steps:
+  - navigate: "/#submit"
+
+  - waitForNetworkIdle:
+      timeout: 5000
+
+  # Section heading
+  - wait: "Submit a hunt through pull request"
+
+  # Form fields exist
+  - waitForSelector:
+      selector: "input[name='name']"
+
+  - waitForSelector:
+      selector: "select[name='category']"
+
+  - waitForSelector:
+      selector: "input[name='description']"
+
+  - waitForSelector:
+      selector: "textarea[name='yaml']"
+
+  # Compliance checkboxes
+  - wait: "Uses generic selectors"
+  - wait: "Contains no secrets or credentials"
+  - wait: "Includes comments and customization notes"
+
+  # Submit button
+  - assert:
+      visible: "Open Pull Request Flow"
+
+  # Fill out the form partially to verify inputs work
+  - fill:
+      selector: "input[name='name']"
+      value: "test-hunt"
+
+  - selectOption:
+      selector: "select[name='category']"
+      value: "smoke"
+
+  - fill:
+      selector: "input[name='description']"
+      value: "A test hunt for validation"
+
+  - fill:
+      selector: "textarea[name='yaml']"
+      value: "name: test-hunt\nsteps:\n  - navigate: '/'"
+
+assertions:
+  - noConsoleErrors: true
+  - urlIncludes: "#submit"

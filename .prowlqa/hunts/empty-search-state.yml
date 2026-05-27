@@ -1,0 +1,42 @@
+# Empty Search State
+# Verifies the browse page shows the empty state when no hunts match a search query.
+
+name: empty-search-state
+description: Search for a nonexistent term and verify the empty state message renders
+tags:
+  - browse
+  - search
+  - edge-case
+
+steps:
+  - navigate: "/browse"
+
+  - waitForNetworkIdle:
+      timeout: 5000
+
+  - waitForSelector:
+      selector: ".hunt-card"
+
+  # Search for something that won't match any hunt
+  - fill:
+      selector: "#browse-search"
+      value: "xyznonexistent"
+
+  # Empty state message should appear
+  - wait:
+      for: "No verified hunts match that filter yet."
+      timeout: 3000
+
+  # Results count should show 0
+  - wait: "Showing 0 of 0 hunts"
+
+  # Clear search and verify cards return
+  - fill:
+      selector: "#browse-search"
+      value: ""
+
+  - waitForSelector:
+      selector: ".hunt-card"
+
+assertions:
+  - noConsoleErrors: true
