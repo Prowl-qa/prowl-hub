@@ -35,6 +35,15 @@ steps:
       selector: "[role='dialog'] pre code"
       timeout: 5000
 
+  - assert:
+      visible: "name:"
+
+  - assert:
+      notVisible: "Loading..."
+
+  - assert:
+      notVisible: "# Failed to load hunt content"
+
   # Action buttons are present
   - assert:
       visible: "Copy YAML"

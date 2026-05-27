@@ -40,6 +40,9 @@ steps:
   - wait: "Security review"
   - wait: "Structured moderation"
 
+  - waitForUrl:
+      value: "/"
+      timeout: 5000
+
 assertions:
   - noConsoleErrors: true
-  - urlEquals: "/"
