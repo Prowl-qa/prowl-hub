@@ -53,6 +53,12 @@ steps:
       selector: "input[name='description']"
       value: "A test hunt for validation"
 
+  # Try submitting before all required inputs are complete
+  - click: "Open Pull Request Flow"
+
+  - assert:
+      visible: "Complete all required fields before opening a pull request."
+
   - fill:
       selector: "textarea[name='yaml']"
       value: "name: test-hunt\nsteps:\n  - navigate: '/'"
