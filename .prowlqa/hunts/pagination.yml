@@ -1,0 +1,50 @@
+# Pagination — Page Navigation
+# Verifies pagination controls appear and work when browse results span multiple pages.
+# Requires 13+ hunts in the catalog (12 per page).
+
+name: pagination
+description: Test pagination controls navigate between pages on the browse page
+tags:
+  - browse
+  - pagination
+
+steps:
+  - navigate: "/browse"
+
+  - waitForNetworkIdle:
+      timeout: 5000
+
+  - waitForSelector:
+      selector: ".hunt-card"
+
+  # Pagination nav should be present (14 hunts > 12 per page)
+  - waitForSelector:
+      selector: "nav[aria-label='Pagination']"
+
+  # Page 1 should be active
+  - waitForSelector:
+      selector: "button[aria-current='page']"
+
+  # Click "Next" to go to page 2
+  - click:
+      selector: "button[aria-label='Next page']"
+
+  - waitForUrl:
+      value: "page=2"
+      timeout: 3000
+
+  # Hunt cards should still render on page 2
+  - waitForSelector:
+      selector: ".hunt-card"
+
+  # Go back to page 1
+  - click:
+      selector: "button[aria-label='Previous page']"
+
+  - waitForUrl:
+      value: "/browse"
+      timeout: 3000
+
+assertions:
+  - noConsoleErrors: true
+  - urlIncludes: "/browse"
