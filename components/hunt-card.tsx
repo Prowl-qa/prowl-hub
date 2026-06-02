@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import type { HuntSummary } from '@/lib/hunts';
 import { toDisplayDate } from '@/lib/format';
 
@@ -9,11 +11,15 @@ interface HuntCardProps {
 
 export default function HuntCard({ hunt, showTags = true, onPreview }: HuntCardProps) {
   const tags = (hunt.tags || []).filter((tag) => tag.trim().length > 0 && !tag.trim().startsWith('#'));
+  const slug = (hunt.filePath.split('/').pop() || '').replace(/\.yml$/, '');
+  const detailHref = `/browse/${encodeURIComponent(hunt.category)}/${encodeURIComponent(slug)}`;
 
   return (
     <article className="hunt-card">
       {hunt.isVerified && <span className="verified-badge">Verified</span>}
-      <h3>{hunt.title}</h3>
+      <h3>
+        <Link href={detailHref}>{hunt.title}</Link>
+      </h3>
       <p>{hunt.description || 'Reusable hunt template.'}</p>
 
       <div className="meta-row">

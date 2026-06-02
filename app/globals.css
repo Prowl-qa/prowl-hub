@@ -934,6 +934,94 @@ textarea:focus-visible {
   padding-bottom: 54px;
 }
 
+.hunt-card h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hunt-card h3 a:hover {
+  color: var(--brand-c);
+}
+
+.hunt-detail {
+  padding-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.hunt-detail-crumbs {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.hunt-detail-crumbs a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.hunt-detail-crumbs a:hover {
+  color: var(--brand-c);
+}
+
+.hunt-detail-head h1 {
+  margin: 8px 0 12px;
+  font-family: var(--font-display), 'Space Grotesk', sans-serif;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.15;
+}
+
+.hunt-detail-description {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  margin: 0 0 18px;
+  max-width: 70ch;
+}
+
+.hunt-detail-yaml {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.2rem;
+}
+
+.hunt-detail-yaml-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.hunt-detail-yaml-head h2 {
+  margin: 0;
+  font-family: var(--font-display), 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+}
+
+.hunt-detail-yaml-head code {
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.hunt-detail-yaml pre {
+  margin: 0;
+  overflow: auto;
+  max-height: 70vh;
+  background: #fdfefe;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem;
+}
+
+.hunt-detail-yaml pre code {
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
 @media (max-width: 980px) {
   .featured-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
