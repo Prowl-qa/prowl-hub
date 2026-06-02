@@ -98,3 +98,7 @@
 ## ~~PQH-003 / HUB-011: Sort Options~~
 **Resolved**: 2026-06-01 (branch two-prowl-issues)
 **Description**: Added a Sort by control to the browse page in `components/browse-shell.tsx` with three options — Alphabetical (default, by title), Newest (by `updatedAt` desc), and Most steps (by `stepCount` desc). The selection is stored in the URL as `?sort=`, kept in sync with the existing `category` and `page` params via `router.replace`, and a non-default sort resets pagination to page 1. Styled the `<select>` with a `.sort-field` rule that mirrors `.search-field` for visual consistency.
+
+## ~~PQH-004 / HUB-012: Hunt Detail Page~~
+**Resolved**: 2026-06-01 (branch two-prowl-issues)
+**Description**: Added `/browse/[category]/[name]` route in `app/browse/[category]/[name]/page.tsx` as a server component that loads all published hunts and looks up the requested hunt by `category` + `${category}/${name}.yml` filePath, calling `notFound()` if no match. Renders a breadcrumb, title, description, meta pills (verified, new, steps, assertions, updated), tags, Download YAML / Back actions, the full YAML body inside `.hunt-detail-yaml`, and up to 6 related hunts from the same category (excluding self). `generateMetadata` produces per-hunt `<title>` and description for SEO. Updated `components/hunt-card.tsx` to wrap the title in a `Link` to the new detail route so cards on the homepage, browse page, and related-hunts grid are now click-throughs.
