@@ -8,6 +8,7 @@ import {
   countAssertions,
   countSteps,
   getFieldValue,
+  getMetaTargetPattern,
   getTagValues,
   toDisplayTitle,
 } from '@/lib/yaml-parser';
@@ -131,6 +132,7 @@ async function readPublishedHuntRecordFromFs(filePath: string): Promise<HuntReco
       isNew: Date.now() - stats.mtimeMs <= newThresholdMs,
       tags: getTagValues(content),
       content,
+      targetPattern: getMetaTargetPattern(content),
     };
   } catch {
     return null;
