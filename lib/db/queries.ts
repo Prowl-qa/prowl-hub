@@ -2,6 +2,7 @@ import { eq, and, sql, type SQL } from 'drizzle-orm';
 
 import { getFilePathFromHuntId, getHuntId } from '@/lib/hunt-identifiers';
 import type { HuntCategory, HuntSummary, HuntRecord } from '@/lib/hunts';
+import { getMetaTargetPattern } from '@/lib/yaml-parser';
 
 import { getDb } from './index';
 import { hunts, type Hunt } from './schema';
@@ -66,6 +67,7 @@ function toRecord(row: Hunt): HuntRecord {
   return {
     ...toSummary(row),
     content: row.content,
+    targetPattern: getMetaTargetPattern(row.content),
   };
 }
 
