@@ -374,6 +374,24 @@ main {
   color: #678092;
 }
 
+.sort-field {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sort-field select {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border-strong);
+  background: #fdfefe;
+  padding: 0.62rem 0.76rem;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
 .chip-row {
   display: flex;
   flex-wrap: wrap;

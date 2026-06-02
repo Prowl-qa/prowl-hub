@@ -9,6 +9,18 @@ import type { HuntSummary } from '@/lib/hunts';
 
 const ITEMS_PER_PAGE = 12;
 
+type SortKey = 'alphabetical' | 'newest' | 'most-steps';
+
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  { value: 'alphabetical', label: 'Alphabetical' },
+  { value: 'newest', label: 'Newest' },
+  { value: 'most-steps', label: 'Most steps' },
+];
+
+function isSortKey(value: string | null): value is SortKey {
+  return value === 'alphabetical' || value === 'newest' || value === 'most-steps';
+}
+
 interface BrowseShellProps {
   hunts: HuntSummary[];
 }
@@ -45,6 +57,8 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
 
   const category = searchParams.get('category') || 'all';
   const currentPage = Math.max(1, Number(searchParams.get('page')) || 1);
+  const sortParam = searchParams.get('sort');
+  const sort: SortKey = isSortKey(sortParam) ? sortParam : 'alphabetical';
 
   const [query, setQuery] = useState('');
   const [selectedHunt, setSelectedHunt] = useState<HuntSummary | null>(null);
@@ -80,16 +94,34 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
     });
   }, [hunts, query, category]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredHunts.length / ITEMS_PER_PAGE));
+  const sortedHunts = useMemo(() => {
+    const arr = [...filteredHunts];
+    switch (sort) {
+      case 'newest':
+        arr.sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''));
+        break;
+      case 'most-steps':
+        arr.sort((a, b) => b.stepCount - a.stepCount);
+        break;
+      case 'alphabetical':
+      default:
+        arr.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+    }
+    return arr;
+  }, [filteredHunts, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedHunts.length / ITEMS_PER_PAGE));
   const safePage = Math.min(currentPage, totalPages);
   const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
-  const paginatedHunts = filteredHunts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedHunts = sortedHunts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   const pageNumbers = buildPageNumbers(safePage, totalPages);
 
   const updateUrl = useCallback(
-    (page: number, cat: string) => {
+    (page: number, cat: string, srt: SortKey) => {
       const params = new URLSearchParams();
       if (cat !== 'all') params.set('category', cat);
+      if (srt !== 'alphabetical') params.set('sort', srt);
       if (page > 1) params.set('page', String(page));
       const qs = params.toString();
       router.replace(`/browse${qs ? `?${qs}` : ''}`, { scroll: false });
@@ -106,15 +138,21 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
 
   function handleCategoryChange(newCategory: string) {
     startTransition(() => {
-      updateUrl(1, newCategory);
+      updateUrl(1, newCategory, sort);
     });
   }
 
   function handlePageChange(page: number) {
     startTransition(() => {
-      updateUrl(page, category);
+      updateUrl(page, category, sort);
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function handleSortChange(newSort: SortKey) {
+    startTransition(() => {
+      updateUrl(1, category, newSort);
+    });
   }
 
   function handleSearchChange(value: string) {
@@ -257,6 +295,21 @@ export default function BrowseShell({ hunts }: BrowseShellProps) {
             </div>
           ))}
         </div>
+
+        <label className="sort-field" htmlFor="browse-sort">
+          <span>Sort by</span>
+          <select
+            id="browse-sort"
+            value={sort}
+            onChange={(event) => handleSortChange(event.target.value as SortKey)}
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       <p className="results-count" aria-live="polite">

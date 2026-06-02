@@ -94,3 +94,7 @@
 ## ~~PQH-006 / HUB-015: Fix `trackDownload` fire-and-forget race on Vercel~~
 **Resolved**: 2026-05-22 (branch track-download, commit abe788e)
 **Description**: `trackDownload` fired `fetch()` without awaiting, so on Vercel the serverless function context could be torn down before the POST settled — dropping download events inconsistently into `hub_downloads`. Made `trackDownload` awaitable (still never throws) and invoked it via Next.js's `after()` in `app/api/hunts/file/route.ts`, so the runtime extends the function lifetime until the tracking POST completes without blocking the response. Mirrors prowl-infra-hub's PQIH-023 / INFRA-059.
+
+## ~~PQH-003 / HUB-011: Sort Options~~
+**Resolved**: 2026-06-01 (branch two-prowl-issues)
+**Description**: Added a Sort by control to the browse page in `components/browse-shell.tsx` with three options — Alphabetical (default, by title), Newest (by `updatedAt` desc), and Most steps (by `stepCount` desc). The selection is stored in the URL as `?sort=`, kept in sync with the existing `category` and `page` params via `router.replace`, and a non-default sort resets pagination to page 1. Styled the `<select>` with a `.sort-field` rule that mirrors `.search-field` for visual consistency.
