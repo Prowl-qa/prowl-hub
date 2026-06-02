@@ -21,6 +21,7 @@ Each `.yml` file must contain these fields:
 |-------|------|-------------|
 | `vars` | mapping | Variables using `{{VAR_NAME}}` syntax |
 | `assertions` | list | Final checks after all steps complete |
+| `meta.targetPattern` | string | Optional glob pattern (e.g. `"**/login"`) used by the Prowl CLI's URL-based hunt discovery to surface this template for matching target URLs. Metadata only — does not affect runtime hunt execution. |
 
 ### Example
 

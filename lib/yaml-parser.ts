@@ -38,6 +38,18 @@ export function getTagValues(content: string): string[] {
     .filter((tag) => Boolean(tag) && !tag.startsWith('#'));
 }
 
+export function getMetaTargetPattern(content: string): string | undefined {
+  const lines = extractSection(content, 'meta');
+  for (const line of lines) {
+    const match = line.match(/^\s+targetPattern:\s*(.+)$/);
+    if (match) {
+      const value = match[1].trim().replace(/^["']|["']$/g, '');
+      return value || undefined;
+    }
+  }
+  return undefined;
+}
+
 export function toDisplayTitle(name: string, fallbackFilename: string): string {
   const raw = name || fallbackFilename.replace(/\.yml$/, '');
   return raw.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
