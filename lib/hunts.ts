@@ -28,6 +28,7 @@ export interface HuntSummary {
 
 export interface HuntRecord extends HuntSummary {
   content: string;
+  targetPattern?: string;
 }
 
 export async function getPublishedHunts(): Promise<HuntRecord[]> {

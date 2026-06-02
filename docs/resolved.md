@@ -94,3 +94,15 @@
 ## ~~PQH-006 / HUB-015: Fix `trackDownload` fire-and-forget race on Vercel~~
 **Resolved**: 2026-05-22 (branch track-download, commit abe788e)
 **Description**: `trackDownload` fired `fetch()` without awaiting, so on Vercel the serverless function context could be torn down before the POST settled — dropping download events inconsistently into `hub_downloads`. Made `trackDownload` awaitable (still never throws) and invoked it via Next.js's `after()` in `app/api/hunts/file/route.ts`, so the runtime extends the function lifetime until the tracking POST completes without blocking the response. Mirrors prowl-infra-hub's PQIH-023 / INFRA-059.
+
+## ~~PQH-003 / HUB-011: Sort Options~~
+**Resolved**: 2026-06-01 (branch two-prowl-issues)
+**Description**: Added a Sort by control to the browse page in `components/browse-shell.tsx` with three options — Alphabetical (default, by title), Newest (by `updatedAt` desc), and Most steps (by `stepCount` desc). The selection is stored in the URL as `?sort=`, kept in sync with the existing `category` and `page` params via `router.replace`, and a non-default sort resets pagination to page 1. Styled the `<select>` with a `.sort-field` rule that mirrors `.search-field` for visual consistency.
+
+## ~~PQH-004 / HUB-012: Hunt Detail Page~~
+**Resolved**: 2026-06-01 (branch two-prowl-issues)
+**Description**: Added `/browse/[category]/[name]` route in `app/browse/[category]/[name]/page.tsx` as a server component that loads all published hunts and looks up the requested hunt by `category` + `${category}/${name}.yml` filePath, calling `notFound()` if no match. Renders a breadcrumb, title, description, meta pills (verified, new, steps, assertions, updated), tags, Download YAML / Back actions, the full YAML body inside `.hunt-detail-yaml`, and up to 6 related hunts from the same category (excluding self). `generateMetadata` produces per-hunt `<title>` and description for SEO. Updated `components/hunt-card.tsx` to wrap the title in a `Link` to the new detail route so cards on the homepage, browse page, and related-hunts grid are now click-throughs.
+
+## ~~PQH-001 / HUB-002: Target URL Pattern Metadata~~
+**Resolved**: 2026-06-01 (branch two-prowl-issues)
+**Description**: Added support for an optional `meta.targetPattern` glob string in hunt YAML so the Prowl CLI's URL-based hunt discovery (P5-007 / PROWL-022) can match templates to a target URL. Added `getMetaTargetPattern(content)` to `lib/yaml-parser.ts`, extended the `HuntRecord` type with `targetPattern?: string`, and wired the parse through both the filesystem reader (`lib/hunts-fs.ts`) and the DB query path (`lib/db/queries.ts` `toRecord`). No DB schema change — the value is derived from the existing `content` column on read, so no migration is required and no risk to imports. The field is exposed on `HuntRecord` returns (and therefore the `/api/hunts/[id]` endpoint) but intentionally left off `HuntSummary` to preserve the lightweight summary payload. Existing CI validator already accepts unknown top-level fields, so no validator change was needed. Documented the field in `CONTRIBUTING.md`.
