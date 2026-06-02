@@ -35,7 +35,4 @@
 
 ## Completed
 
-### HUB-013: Align hub browser icon with the shared Prowl site icon (completed: 2026-03-21)
-**Description**: Replaced the metadata-only favicon setup in `prowl-hub` with Next App Router special files. Added `app/icon.png` and `app/apple-icon.png` from the shared mascot asset, removed the redundant `metadata.icons` block from the root layout, and verified the production build now emits `/icon.png` and `/apple-icon.png` routes.
-
 *All completed items are tracked in [resolved.md](resolved.md) under Prowl Hub.*
