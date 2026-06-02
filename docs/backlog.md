@@ -27,9 +27,6 @@
 {PQH-002} **HUB-010: Server-Side Filtering (500+ hunts)**
    Move search/filter/pagination to server-side via `searchParams` when catalog exceeds 500 hunts. Server component reads `?q=&category=&page=`, filters and slices server-side. Search input becomes a GET form or debounced `router.push`.
 
-{PQH-003} **HUB-011: Sort Options**
-   Add sort controls to browse page (newest, alphabetical, most steps). Default to alphabetical.
-
 {PQH-004} **HUB-012: Hunt Detail Page**
    Create `/browse/[category]/[name]` route showing full YAML, metadata, and related hunts from the same category.
 
