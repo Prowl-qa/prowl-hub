@@ -5,7 +5,7 @@
 If you discover a security vulnerability in Prowl Hub, please report it responsibly:
 
 1. **Do NOT open a public issue**
-2. Report privately via GitHub Security Advisories: `https://github.com/Prowl-qa/prowl-hub/security/advisories/new`
+2. Report privately via GitHub Security Advisories: `https://github.com/prowl-tools/prowl-hub/security/advisories/new`
 3. Include: vulnerability summary, reproduction steps, affected files/paths, and impact assessment
 
 ## Submission Security

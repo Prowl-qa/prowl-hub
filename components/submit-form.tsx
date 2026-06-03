@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 
-const GITHUB_NEW_FILE_URL = 'https://github.com/Prowl-qa/prowl-hub/new/main';
+const GITHUB_NEW_FILE_URL = 'https://github.com/prowl-tools/prowl-hub/new/main';
 
 type SubmitState = {
   kind: 'success' | 'error';
@@ -66,7 +66,7 @@ export default function SubmitForm() {
       return;
     }
 
-    const suggestedFilePath = `.prowlqa/hunts/${validatedCategory}/${huntSlug}.yml`;
+    const suggestedFilePath = `.prowl/hunts/${validatedCategory}/${huntSlug}.yml`;
     const commitMessage = `feat(hunt): add ${huntSlug} template`;
 
     const params = new URLSearchParams({

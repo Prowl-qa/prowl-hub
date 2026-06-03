@@ -111,7 +111,7 @@ jobs:
 
       - name: Validate hunt schema
         run: |
-          HUNT_DIRS=".prowlqa/hunts smoke auth forms admin e-commerce saas accessibility docs"
+          HUNT_DIRS=".prowl/hunts smoke auth forms admin e-commerce saas accessibility docs"
           ERRORS=""
           for dir in $HUNT_DIRS; do
             [ -d "$dir" ] || continue
@@ -190,7 +190,7 @@ jobs:
 
       - name: Validate filename matches name field
         run: |
-          HUNT_DIRS=".prowlqa/hunts smoke auth forms admin e-commerce saas accessibility docs"
+          HUNT_DIRS=".prowl/hunts smoke auth forms admin e-commerce saas accessibility docs"
           ERRORS=""
           for dir in $HUNT_DIRS; do
             [ -d "$dir" ] || continue

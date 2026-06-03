@@ -34,7 +34,7 @@
 
 ## ~~HUB-005: Add "Using Templates Programmatically" link to README~~
 **Resolved**: 2026-02-16 (branch: high-priority)
-**Description**: Added "Using Templates Programmatically" section to README linking to the Agent Integration docs at docs.prowlqa.dev/agents with mention of CLI and library API.
+**Description**: Added "Using Templates Programmatically" section to README linking to the Agent Integration docs at docs.prowl.tools/agents with mention of CLI and library API.
 
 ## ~~HUB-006: Scalable Catalog UI — Two-Page Architecture~~
 **Resolved**: 2026-02-17 (commit 175def1, branch: browse-page)
@@ -70,7 +70,7 @@
 
 ## ~~BUG-HUB-001: Hunt catalog shows 0 hunts — HUNTS_ROOT path mismatch~~
 **Resolved**: 2026-02-17 (commit 4e9c66b)
-**Description**: `HUNTS_ROOT` in `lib/hunts.ts` pointed to `.prowlqa/hunts/` which had no category subdirectories, causing the web UI to display 0 verified hunts. Changed `HUNTS_ROOT` to the project root so it reads from the root-level category directories (`auth/`, `admin/`, `e-commerce/`, etc.) where templates actually live. Also updated `filePath` references from `.prowlqa/hunts/${category}/${file}` to `${category}/${file}`.
+**Description**: `HUNTS_ROOT` in `lib/hunts.ts` pointed to `.prowl/hunts/` which had no category subdirectories, causing the web UI to display 0 verified hunts. Changed `HUNTS_ROOT` to the project root so it reads from the root-level category directories (`auth/`, `admin/`, `e-commerce/`, etc.) where templates actually live. Also updated `filePath` references from `.prowl/hunts/${category}/${file}` to `${category}/${file}`.
 
 ## ~~BUG-HUB-002: Published playbook path hardening and nested CI coverage~~
 **Resolved**: 2026-03-18

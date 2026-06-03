@@ -5,8 +5,8 @@ import BrowseShell from '@/components/browse-shell';
 import { getPublishedHuntSummaries } from '@/lib/hunts';
 
 export const metadata: Metadata = {
-  title: 'Browse Hunts | Prowl QA Hub',
-  description: 'Search, filter, and download verified community hunt templates for Prowl QA.',
+  title: 'Browse Hunts | Prowl Hub',
+  description: 'Search, filter, and download verified community hunt templates for Prowl.',
 };
 
 export default async function BrowsePage() {
@@ -21,7 +21,7 @@ export default async function BrowsePage() {
         </div>
         <p>
           Every card below is verified and safe to reuse. Use filters, inspect raw YAML, and
-          download directly into your <code>.prowlqa/hunts/</code> directory.
+          download directly into your <code>.prowl/hunts/</code> directory.
         </p>
       </div>
 
