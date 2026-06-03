@@ -39,7 +39,7 @@ export function normalizePublishedFilePath(rawPath: string): string | null {
 
   const rawSegments = normalized.split('/').filter(Boolean);
   const segments =
-    rawSegments[0] === '.prowlqa' && rawSegments[1] === 'hunts' ? rawSegments.slice(2) : rawSegments;
+    (rawSegments[0] === '.prowl' || rawSegments[0] === '.prowlqa') && rawSegments[1] === 'hunts' ? rawSegments.slice(2) : rawSegments;
 
   if (segments.length < 2) {
     return null;
