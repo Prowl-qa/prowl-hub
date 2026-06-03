@@ -6,7 +6,7 @@
 # Customize:
 #   - Update the step labels, form fields, and navigation targets
 #     for your SaaS onboarding experience
-#   - Store credentials in .prowlqa/.env
+#   - Store credentials in .prowl/.env
 
 name: onboarding-wizard
 description: Complete SaaS onboarding from signup to dashboard
