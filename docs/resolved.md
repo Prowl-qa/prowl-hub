@@ -34,7 +34,7 @@
 
 ## ~~HUB-005: Add "Using Templates Programmatically" link to README~~
 **Resolved**: 2026-02-16 (branch: high-priority)
-**Description**: Added "Using Templates Programmatically" section to README linking to the Agent Integration docs at docs.prowlqa.dev/agents with mention of CLI and library API.
+**Description**: Added "Using Templates Programmatically" section to README linking to the Agent Integration docs at docs.prowl.tools/agents with mention of CLI and library API.
 
 ## ~~HUB-006: Scalable Catalog UI — Two-Page Architecture~~
 **Resolved**: 2026-02-17 (commit 175def1, branch: browse-page)
@@ -70,7 +70,7 @@
 
 ## ~~BUG-HUB-001: Hunt catalog shows 0 hunts — HUNTS_ROOT path mismatch~~
 **Resolved**: 2026-02-17 (commit 4e9c66b)
-**Description**: `HUNTS_ROOT` in `lib/hunts.ts` pointed to `.prowlqa/hunts/` which had no category subdirectories, causing the web UI to display 0 verified hunts. Changed `HUNTS_ROOT` to the project root so it reads from the root-level category directories (`auth/`, `admin/`, `e-commerce/`, etc.) where templates actually live. Also updated `filePath` references from `.prowlqa/hunts/${category}/${file}` to `${category}/${file}`.
+**Description**: `HUNTS_ROOT` in `lib/hunts.ts` pointed to `.prowl/hunts/` which had no category subdirectories, causing the web UI to display 0 verified hunts. Changed `HUNTS_ROOT` to the project root so it reads from the root-level category directories (`auth/`, `admin/`, `e-commerce/`, etc.) where templates actually live. Also updated `filePath` references from `.prowl/hunts/${category}/${file}` to `${category}/${file}`.
 
 ## ~~BUG-HUB-002: Published playbook path hardening and nested CI coverage~~
 **Resolved**: 2026-03-18
@@ -106,3 +106,7 @@
 ## ~~PQH-001 / HUB-002: Target URL Pattern Metadata~~
 **Resolved**: 2026-06-01 (branch two-prowl-issues)
 **Description**: Added support for an optional `meta.targetPattern` glob string in hunt YAML so the Prowl CLI's URL-based hunt discovery (P5-007 / PROWL-022) can match templates to a target URL. Added `getMetaTargetPattern(content)` to `lib/yaml-parser.ts`, extended the `HuntRecord` type with `targetPattern?: string`, and wired the parse through both the filesystem reader (`lib/hunts-fs.ts`) and the DB query path (`lib/db/queries.ts` `toRecord`). No DB schema change — the value is derived from the existing `content` column on read, so no migration is required and no risk to imports. The field is exposed on `HuntRecord` returns (and therefore the `/api/hunts/[id]` endpoint) but intentionally left off `HuntSummary` to preserve the lightweight summary payload. Existing CI validator already accepts unknown top-level fields, so no validator change was needed. Documented the field in `CONTRIBUTING.md`.
+
+## ~~Rebrand: Prowl QA → Prowl (Hub)~~
+**Resolved**: 2026-06-03 (branch: rebrand-to-prowl-tools)
+**Description**: Rebranded the community hub for the Prowl / prowl-tools rename. Site brand "Prowl QA Hub"→"Prowl Hub", ProwlQA/Prowl QA→Prowl, `prowlqa` command→`prowl`, `prowlqa.dev`→`prowl.tools` (docs/hub/email + npm link→`prowl-tools`), `github.com/Prowl-qa`→`prowl-tools`, `.prowlqa/`→`.prowl/` across hunt templates and the hub's own test-hunt dir. `lib/hunt-identifiers.ts` now accepts **both** `.prowl/` and legacy `.prowlqa/` submission paths (back-compat). The `@prowlqa` X handle left unchanged pending the handle decision; the "Brought to you by Genkei Labs" footer deferred until genkeilabs.com is live. lint + typecheck + build pass.

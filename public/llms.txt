@@ -1,4 +1,4 @@
-# Prowl QA Hub
+# Prowl Hub
 > A curated registry of verified QA hunt templates for browser testing.
 
 ## API
@@ -18,4 +18,4 @@ Each hunt template includes: name, description, tags, steps, assertions, and opt
 1. Search for hunts matching your testing need
 2. Download the YAML template
 3. Customize {{VAR}} placeholders for your application
-4. Run with prowlqa: prowlqa run <hunt-name>
+4. Run with prowl: prowl run <hunt-name>

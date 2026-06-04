@@ -12,7 +12,7 @@ export default function SiteHeader() {
         <div className="container nav-shell">
           <Link href="/" className="brand" aria-label="Prowl Hub home">
             <Image src="/assets/brand/mascot.png" alt="" width={34} height={34} />
-            <span>Prowl QA Hub</span>
+            <span>Prowl Hub</span>
           </Link>
 
           <nav className="primary-nav" aria-label="Primary">

@@ -25,7 +25,7 @@
 ## Product Rules To Preserve
 - Keep hunt listing **verified-only**.
 - Preserve `Verified` and `New` badge behavior.
-- Keep submission flow pointed at the org repo (`Prowl-qa/prowl-hub`) and PR-based publishing workflow.
+- Keep submission flow pointed at the org repo (`prowl-tools/prowl-hub`) and PR-based publishing workflow.
 - Do not add direct publish/upload behavior that bypasses PR review.
 
 ## Brand Assets
@@ -49,4 +49,4 @@
 - Prefer minimal, targeted edits.
 - Keep accessibility intact: semantic elements, keyboard usability, visible focus styles.
 - For any submission workflow change, verify both UX copy and technical target URLs.
-- When uncertain about org/repo targets, default to `Prowl-qa` and ask before changing cross-repo links.
+- When uncertain about org/repo targets, default to `prowl-tools` and ask before changing cross-repo links.

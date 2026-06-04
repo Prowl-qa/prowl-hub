@@ -3,12 +3,12 @@ import { NextResponse } from 'next/server';
 const spec = {
   openapi: '3.0.3',
   info: {
-    title: 'Prowl QA Hub API',
+    title: 'Prowl Hub API',
     description: 'API for discovering and downloading verified QA hunt templates.',
     version: '1.0.0',
   },
   servers: [
-    { url: 'https://hub.prowlqa.dev', description: 'Production' },
+    { url: 'https://hub.prowl.tools', description: 'Production' },
     { url: 'http://localhost:3003', description: 'Local development' },
   ],
   paths: {
