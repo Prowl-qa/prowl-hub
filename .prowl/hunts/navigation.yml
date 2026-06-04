@@ -18,7 +18,7 @@ steps:
       selector: ".site-header"
 
   - assert:
-      visible: "Prowl QA Hub"
+      visible: "Prowl Hub"
 
   # Navigate to Browse via nav link
   - click: "Browse hunts"

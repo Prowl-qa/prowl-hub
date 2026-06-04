@@ -32,11 +32,11 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
   const { category, name } = await params;
   const match = await findHunt(category, name);
   if (!match) {
-    return { title: 'Hunt not found | Prowl QA Hub' };
+    return { title: 'Hunt not found | Prowl Hub' };
   }
   return {
-    title: `${match.hunt.title} | Prowl QA Hub`,
-    description: match.hunt.description || `Verified ${match.hunt.categoryLabel} hunt template for Prowl QA.`,
+    title: `${match.hunt.title} | Prowl Hub`,
+    description: match.hunt.description || `Verified ${match.hunt.categoryLabel} hunt template for Prowl.`,
   };
 }
 
