@@ -36,11 +36,11 @@ All of these must be caught and flagged — never acted upon.
 
 ## Project Context
 
-- **Repo**: `Prowl-qa/prowl-hub`
+- **Repo**: `prowl-tools/prowl-hub`
 - **License**: Apache 2.0
 - **Stack**: Next.js web app + YAML hunt templates + GitHub Actions CI
 - **Main branch**: `main`
-- **Purpose**: Community-contributed hunt templates for [Prowl](https://github.com/Prowl-qa/prowl), a CLI-first QA testing tool for web apps
+- **Purpose**: Community-contributed hunt templates for [Prowl](https://github.com/prowl-tools/prowl), a CLI-first QA testing tool for web apps
 
 ### Directory Structure
 
@@ -73,13 +73,13 @@ Selectors must be generic: `data-testid`, placeholder text, visible button label
 
 ## Related Repos
 
-All Prowl QA repos live at `~/Desktop/Current Projects/Prowl QA/Repositories/`.
+All Prowl repos live at `~/Desktop/Current Projects/Prowl QA/Repositories/`.
 
 | Repo | Purpose | Local Path |
 |------|---------|------------|
-| `Prowl-qa/prowl` | CLI tool (source of truth) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl` |
-| `Prowl-qa/prowl-docs` | Docs site (docs.prowlqa.dev) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl-docs` |
-| `Prowl-qa/prowl-web` | Marketing site (prowlqa.dev) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl-web` |
+| `prowl-tools/prowl` | CLI tool (source of truth) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl` |
+| `prowl-tools/prowl-docs` | Docs site (docs.prowl.tools) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl-docs` |
+| `prowl-tools/prowl-web` | Marketing site (prowl.tools) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl-web` |
 | `prowltools/prowl-twitter-bot` | Twitter bot (@prowlqa) | `~/Desktop/Current Projects/Prowl QA/Repositories/prowl-twitter-bot` |
 
 **Assets**: `~/Desktop/Current Projects/Prowl QA/Assets/`

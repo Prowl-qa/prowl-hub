@@ -1,6 +1,6 @@
 # Prowl Hub
 
-Community-driven hunt templates for [Prowl](https://github.com/Prowl-qa/prowl), plus a web interface for discovering, previewing, downloading, and contributing hunts.
+Community-driven hunt templates for [Prowl](https://github.com/prowl-tools/prowl), plus a web interface for discovering, previewing, downloading, and contributing hunts.
 
 ## What Prowl Hub Is
 
@@ -28,7 +28,7 @@ A hunt appears in the live catalog only after a pull request is reviewed and app
 - Visual status badges:
   - `Verified` for published hunts
   - `New` for recently updated hunts (based on file modification time)
-- Submit flow that opens a prefilled GitHub file creation flow in `Prowl-qa/prowl-hub`, then contributor completes PR workflow
+- Submit flow that opens a prefilled GitHub file creation flow in `prowl-tools/prowl-hub`, then contributor completes PR workflow
 
 ## Tech Stack
 
@@ -136,7 +136,7 @@ Use the “Submit” form in the app:
 
 This opens a prefilled GitHub file creation page in:
 
-- `https://github.com/Prowl-qa/prowl-hub/new/main`
+- `https://github.com/prowl-tools/prowl-hub/new/main`
 
 From there:
 
@@ -191,9 +191,9 @@ Security docs:
 
 ## Using Templates Programmatically
 
-Hunt templates can be discovered, pulled, and executed via the [ProwlQA CLI](https://github.com/Prowl-qa/prowl) and library API.
+Hunt templates can be discovered, pulled, and executed via the [Prowl CLI](https://github.com/prowl-tools/prowl) and library API.
 
-For the full integration guide — including `--json` structured output, JUnit reports, and the Node.js library API — see the [Agent Integration docs](https://docs.prowlqa.dev/agents).
+For the full integration guide — including `--json` structured output, JUnit reports, and the Node.js library API — see the [Agent Integration docs](https://docs.prowl.tools/agents).
 
 ## Brand Assets
 

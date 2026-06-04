@@ -9,7 +9,7 @@
 # This pattern is idempotent — it cleans up after itself by deleting the
 # created entity, so it can run repeatedly without side effects.
 #
-# Auth: This hunt assumes you're already authenticated. Use `prowlqa login`
+# Auth: This hunt assumes you're already authenticated. Use `prowl login`
 #       to capture auth state, or add your own login steps before this hunt.
 #
 # Tip: Uses `onDialog` to handle the browser confirmation dialog on delete.
