@@ -25,7 +25,7 @@ const monoFont = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Prowl QA Hub | Community Hunt Library',
+  title: 'Prowl Hub | Community Hunt Library',
   description: 'Browse verified community Prowl hunts and submit new templates via pull request.',
   icons: {
     icon: '/assets/brand/mascot.png',

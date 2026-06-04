@@ -53,7 +53,7 @@ export default async function HomePage() {
           <p className="eyebrow">Community QA patterns</p>
           <h1>Find and share reusable hunts for real product flows.</h1>
           <p className="lede">
-            Prowl QA Hub publishes only verified templates. Contributors submit hunts through pull
+            Prowl Hub publishes only verified templates. Contributors submit hunts through pull
             requests, and templates become visible only after maintainer approval.
           </p>
           <div className="hero-actions">
