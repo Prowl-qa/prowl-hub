@@ -1,15 +1,22 @@
 # Prowl Hub
 
-Community-driven hunt templates for [Prowl](https://github.com/prowl-tools/prowl), plus a web interface for discovering, previewing, downloading, and contributing hunts.
+> **⚠️ Retired (2026-08).** Prowl Hub is no longer maintained and is frozen pending GitHub
+> archive. Its historical hunt templates now ship **inside the Prowl CLI** — run `prowl templates list`
+> and `prowl init --template <category/name>` (see
+> [`prowl-tools/prowl`](https://github.com/prowl-tools/prowl) and the
+> [Starter Templates docs](https://docs.prowl.tools/starter-templates)). The old → new path
+> map is in [`MIGRATED.md`](MIGRATED.md). Historical hunt templates are preserved here for reference.
 
-## What Prowl Hub Is
+Prowl Hub was a community-driven hunt-template catalog for [Prowl](https://github.com/prowl-tools/prowl), plus a web interface for discovering, previewing, downloading, and contributing hunts.
 
-Prowl Hub is a central library of reusable YAML hunts that teams can use in their own projects.  
-The hub is designed around one core trust rule:
+## What Prowl Hub Was
+
+Prowl Hub was a central library of reusable YAML hunts that teams could use in their own projects.
+The hub was designed around one core trust rule:
 
 **Only verified hunts are published.**
 
-A hunt appears in the live catalog only after a pull request is reviewed and approved by maintainers.
+A hunt appeared in the live catalog only after a pull request was reviewed and approved by maintainers.
 
 ## Core Principles
 
@@ -19,7 +26,7 @@ A hunt appears in the live catalog only after a pull request is reviewed and app
 - Clear contributor UX
 - Reusable hunt patterns across app domains
 
-## Current Capabilities
+## Historical Capabilities
 
 - Browse hunts by category
 - Search/filter hunts
@@ -28,7 +35,7 @@ A hunt appears in the live catalog only after a pull request is reviewed and app
 - Visual status badges:
   - `Verified` for published hunts
   - `New` for recently updated hunts (based on file modification time)
-- Submit flow that opens a prefilled GitHub file creation flow in `prowl-tools/prowl-hub`, then contributor completes PR workflow
+- Retired submit flow that opened a prefilled GitHub file creation flow in `prowl-tools/prowl-hub`, then contributor completed the PR workflow
 
 ## Tech Stack
 
@@ -62,8 +69,7 @@ prowl-hub/
 ├── e-commerce/                       # Hunt templates
 ├── saas/                             # Hunt templates
 ├── accessibility/                    # Hunt templates
-└── .github/workflows/
-    └── validate-submission.yml       # CI validation checks
+└── .github/                           # Historical repo metadata; workflows removed at retirement
 ```
 
 ## Local Development
@@ -114,43 +120,47 @@ Returns the current published hunt catalog with metadata for UI rendering.
 Returns/downloads a hunt file if it is in an allowed published directory and has `.yml` extension.  
 Path validation prevents directory traversal and non-template access.
 
-## Verified Publishing Model
+## Historical Verified Publishing Model
 
-1. Contributor proposes a hunt through GitHub PR flow.
-2. CI runs validation checks.
-3. Maintainer reviews the content and security profile.
-4. After approval + merge, the hunt is considered verified and appears in the hub.
+1. Contributor proposed a hunt through GitHub PR flow.
+2. CI ran validation checks.
+3. Maintainer reviewed the content and security profile.
+4. After approval + merge, the hunt was considered verified and appeared in the hub.
 
-There is intentionally **no direct publish API** that bypasses review.
+There was intentionally **no direct publish API** that bypassed review.
 
-## Contribution Workflow
+## Contribution Workflow (Closed)
 
 ### From the UI
 
-Use the “Submit” form in the app:
+The retired UI used a “Submit” form:
 
 - Fill hunt metadata
 - Paste YAML
 - Confirm checklist
 - Click **Open Pull Request Flow**
 
-This opens a prefilled GitHub file creation page in:
+This opened a prefilled GitHub file creation page in:
 
 - `https://github.com/prowl-tools/prowl-hub/new/main`
 
-From there:
+From there, contributors historically:
 
-1. Commit to a branch
-2. Open PR
-3. Wait for review and merge
+1. Committed to a branch
+2. Opened a PR
+3. Waited for review and merge
 
 ### Manual Contribution
 
-1. Fork the repo
-2. Add one `.yml` hunt file to the correct category folder
-3. Open PR with clear description
-4. Address CI and review feedback
-5. Merge after approval
+This workflow is closed for `prowl-hub`; new template work belongs in `prowl-tools/prowl`.
+
+Historically:
+
+1. Contributors forked the repo
+2. Added one `.yml` hunt file to the correct category folder
+3. Opened a PR with clear description
+4. Addressed CI and review feedback
+5. Merged after approval
 
 ## Hunt Authoring Guidelines
 
@@ -168,7 +178,7 @@ Community hunts are treated as untrusted input.
 Key safeguards:
 
 - Review-first workflow
-- Automated CI scanning
+- Historical automated CI scanning
 - URL/domain pattern inspection
 - Credential-variable pattern inspection
 - Strict file/path boundaries for downloadable templates
@@ -179,9 +189,9 @@ Security docs:
 - [`CLAUDE.md`](CLAUDE.md)
 - [`AGENTS.md`](AGENTS.md)
 
-## CI Validation Summary
+## Historical CI Validation Summary
 
-`.github/workflows/validate-submission.yml` currently checks:
+Before workflow removal, `.github/workflows/validate-submission.yml` checked:
 
 - Allowed file types only
 - File size limits

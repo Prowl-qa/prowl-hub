@@ -110,3 +110,31 @@
 ## ~~Rebrand: Prowl QA → Prowl (Hub)~~
 **Resolved**: 2026-06-03 (branch: rebrand-to-prowl-tools)
 **Description**: Rebranded the community hub for the Prowl / prowl-tools rename. Site brand "Prowl QA Hub"→"Prowl Hub", ProwlQA/Prowl QA→Prowl, `prowlqa` command→`prowl`, `prowlqa.dev`→`prowl.tools` (docs/hub/email + npm link→`prowl-tools`), `github.com/Prowl-qa`→`prowl-tools`, `.prowlqa/`→`.prowl/` across hunt templates and the hub's own test-hunt dir. `lib/hunt-identifiers.ts` now accepts **both** `.prowl/` and legacy `.prowlqa/` submission paths (back-compat). The `@prowlqa` X handle left unchanged pending the handle decision; the "Brought to you by Genkei Labs" footer deferred until genkeilabs.com is live. lint + typecheck + build pass.
+
+## ~~PQH-007 / HUB-016: Migrate the hunt templates into the `prowl` repo~~
+**Resolved**: 2026-08-26 (branch sunset-hub; `prowl` branch starter-templates)
+**Description**: All 23 hunt templates (accessibility, admin, auth, docs, e-commerce, forms, saas, smoke — same category/file names) now live in `prowl` at `templates/<category>/<name>.yml` and are surfaced by `prowl templates list|show` and `prowl init --template <category/name>`; `prowl`'s `test/templates.test.ts` schema-validates every one in CI (the port of this repo's `validate-submission.yml` check). `e-commerce/stripe-checkout` was rewritten there against Stripe-hosted Checkout because the hub version used an `iframe_action` step the CLI never had. `MIGRATED.md` in this repo maps every old path to its new path and CLI id. Counterparts: `prowl` PROWL-072/073 (resolved), `prowl-docs` PQD-008 (resolved — `/hub-api` now redirects to `/starter-templates`).
+
+## ~~PQH-009 / HUB-018: Remove automation attached to this repo~~
+**Resolved**: 2026-08-26 (branch sunset-hub)
+**Description**: Runner `lucius-mac-mini-prowl-hub` (id 21) deregistered on GitHub and its LaunchAgent + directory removed on the Mac mini (`luciusfox@192.168.86.28`; the other seven runners untouched). `prowl-review-codex` branch deleted from origin. All four workflows (`claude-code-review.yml`, `claude.yml`, `sync-to-database.yml`, `validate-submission.yml`) removed and the `CLAUDE_CODE_OAUTH_TOKEN` secret deleted — Actions tab is idle. GitHub Apps: `claude`/`coderabbitai`/`prowl-review` are org-wide "all repositories" installs with no per-repo uninstall, so archiving is what neutralises them; removing `prowl-hub` from the `vercel` and `chatgpt-codex-connector` "selected repositories" lists needs the GitHub UI and is carried under HUB-019.
+
+## ~~PQH-011 / HUB-020: Commit the six never-committed `smoke/` hunts~~
+**Resolved**: 2026-08-26 (branch sunset-hub, commit 7b88ac9)
+**Description**: `smoke/api-health.yml`, `empty-state.yml`, `navigation.yml`, `pagination.yml`, `preview-modal.yml`, `search-and-filter.yml` (written 2026-06-05, never added to git) are now committed, so the catalog on GitHub is the full 23 and the `prowl` migration includes them.
+
+## ~~PQH-012 / HUB-021: Commit the uncommitted `CLAUDE.md` rewrite~~
+**Resolved**: 2026-08-26 (branch sunset-hub, commit bffa7ea)
+**Description**: Landed the 2026-08-09 rewrite that defers to the workspace `CLAUDE.md` (drops the stale "Prowl QA" repo table, `@prowlqa` handle, and duplicated git/backlog rules), then added the frozen-repo note on top as part of HUB-019.
+
+## ~~PQH-013 / HUB-022: Prune stale branches before archiving~~
+**Resolved**: 2026-08-26
+**Description**: Deleted 18 fully-merged branches from origin plus `prowl-review-codex`, and the matching local branches. `origin` now holds `main`, `sunset-hub`, and `qa/hunt-run-20260527-1635` — the last one has a single unmerged QA-agent commit and was deliberately left for the owner to keep or drop before the archive.
+
+## ~~PQH-014 / HUB-023: Create the missing cross-repo sunset items~~
+**Resolved**: 2026-08-26
+**Description**: Created `prowl-web` PQW-025 (Community.tsx, products.ts, `/hub` redirect, blog link, the three `.prowl/hunts` that assert a hub link) and `prowl-infra-hub` INFRA-070 (README/footer/hello.yml links + the `infrastructure/prowl-hub-postgres/` compose dir; notes that the INFRA-073 id referenced by `prowl-code-review` does not exist). Corrected the "32" template count in `prowl` PROWL-072 to 23. `prowl-code-review-docs` needs no item — that site is itself being retired (`prowl-code-review` item 68), and item 71 there already drops `prowl-hub` from the runner rollout. Workspace `CLAUDE.md` repo-map row is left for the archive pass (HUB-019).
+
+## ~~PQH-002 / HUB-010: Server-Side Filtering (500+ hunts)~~
+**Resolved**: 2026-08-26 (won't do — superseded by the Sunset Work Items)
+**Description**: Closed without implementation: Prowl Hub is retired and the catalog (23 hunts) moved into the CLI, so a 500-hunt server-side filtering path will never be needed here.
