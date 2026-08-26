@@ -138,3 +138,11 @@
 ## ~~PQH-002 / HUB-010: Server-Side Filtering (500+ hunts)~~
 **Resolved**: 2026-08-26 (won't do — superseded by the Sunset Work Items)
 **Description**: Closed without implementation: Prowl Hub is retired and the catalog (23 hunts) moved into the CLI, so a 500-hunt server-side filtering path will never be needed here.
+
+## ~~PQH-008 / HUB-017: Decommission the hub.prowl.tools deployment~~
+**Resolved**: 2026-08-26
+**Description**: Owner deleted the Vercel project `prowl-hub`; `hub.prowl.tools` now returns Vercel's 404 and the project no longer appears in the Vercel team. `sync-to-database.yml` was removed with the other workflows (HUB-018), and the pushed-branch triggers for Preview builds are gone. Known `/api/hunts` consumers are cut over: `prowl` `init.ts` (PROWL-073) and `prowl-docs` `hub-api.md`/`agents.mdx` (PQD-008, `/hub-api` → `/starter-templates`). Left outside this repo: the Cloudflare `hub` CNAME still points at Vercel DNS and serves only a 404 — delete it when convenient (owner); the LAN `prowl-hub-postgres` container and its compose dir are tracked in `prowl-infra-hub` INFRA-070; Beelink's `/api/downloads/hub` routes are dormant (no cost).
+
+## ~~PQH-010 / HUB-019: Archive the repository~~
+**Resolved**: 2026-08-26 (PR #21 sunset-hub + this final docs commit)
+**Description**: README carries the retirement banner ("frozen pending GitHub archive", templates now in the Prowl CLI, link to `MIGRATED.md`); `CLAUDE.md`/`AGENTS.md` carry frozen-repo notes; GitHub description and homepage point at `docs.prowl.tools/starter-templates`; workflows, secret, runner, and merged branches are gone (HUB-018/022); the leftover `qa/hunt-run-20260527-1635` branch (a moot May QA finding — no `.prowlqa/config.yml`, superseded by the Jun 5 `.prowl/` config and the retirement) is deleted in the same pass. Cross-repo cleanup lives where it belongs: `prowl` PROWL-072/073 (resolved), `prowl-docs` PQD-008 (resolved), `prowl-web` PQW-025, `prowl-infra-hub` INFRA-070, and the workspace `CLAUDE.md` repo map (already lists this repo as archived). The archive itself (`gh repo archive prowl-tools/prowl-hub` as `prowltools`) is the last action after this commit — the repo is read-only from then on.

@@ -50,42 +50,9 @@ templates move to `prowl`. Existing open item HUB-010 is superseded by this sect
 - 21 merged feature branches still exist on `origin` (HUB-022). Archived repos are read-only,
   so branch cleanup must happen **before** HUB-019.
 
-{PQH-008} **HUB-017: Decommission the hub.prowl.tools deployment**
-   (1) Vercel: delete project `prowl-hub` (or at minimum disconnect the Git integration so
-   Preview builds stop) and remove `prowl-hub` from the `vercel` GitHub App's selected repos.
-   (2) DNS: delete the `hub` CNAME, or point it at the `prowl-docs` starter-templates page
-   (PQD-008) for a grace period. (3) DB: stop/remove the `prowl-hub-postgres` container on its
-   LAN host and drop the compose dir from `prowl-infra-hub` (no `prowl-infra-hub` item exists
-   for this yet — add one). (4) Beelink: retire the `/api/downloads/hub` routes + `hub_downloads`
-   table in `prowl-feedback-api`, or leave dormant (no cost either way). (5) Delete
-   `sync-to-database.yml`. Known `/api/hunts` consumers to confirm are cut over: `prowl`
-   `src/cli/commands/init.ts:87` + MCP server (PROWL-073), `prowl-docs` `hub-api.md` /
-   `agents.mdx` (PQD-008).
-   _Status (2026-08-26): Vercel deletion approved by the owner but **deferred until the three
-   sunset PRs merge** (`prowl-hub` sunset-hub, `prowl` starter-templates, `prowl-docs`
-   starter-templates-page) so live docs never point at a dead site; then `vercel project rm
-   prowl-hub`. Preview builds can no longer trigger (all branches but `main`, `sunset-hub`, and
-   one QA branch are gone). DNS (Cloudflare) and the LAN Postgres container remain owner
-   actions._
-   **Acceptance**: hub.prowl.tools no longer serves the app; no Preview deployments; no
-   recurring hosting/db cost.
-
-{PQH-010} **HUB-019: Archive the repository**
-   After HUB-016..018, HUB-020..022: add a retirement banner at the top of `README.md`
-   ("Retired 2026-08 — templates now ship with the Prowl CLI, see …"), update
-   `CLAUDE.md`/`AGENTS.md` to say the repo is frozen (fold in the uncommitted `CLAUDE.md`
-   rewrite, HUB-021), set the GitHub repo description ("Retired 2026-08 — …") and clear the
-   `prowl-hub.vercel.app` homepage URL **before** archiving (settings are read-only after), then
-   archive on GitHub as the `prowltools` account (history preserved, read-only). Cross-repo
-   cleanup is tracked where it lives — see HUB-023 for the items that still need creating.
-   _Status (2026-08-26): README banner, CLAUDE.md/AGENTS.md frozen notes, and the `MIGRATED.md`
-   are on `sunset-hub`; GitHub description + homepage already set. **Remaining:** merge the
-   three sunset PRs, delete the Vercel project (HUB-017), decide the leftover
-   `qa/hunt-run-20260527-1635` branch, remove `prowl-hub` from the org-level `vercel` and
-   `chatgpt-codex-connector` GitHub App selections (GitHub UI; carried over from HUB-018), then
-   `gh repo archive prowl-tools/prowl-hub` as `prowltools`._
-   **Acceptance**: repo shows "archived" on GitHub; README banner visible; no inbound links from
-   live Prowl properties.
+**All sunset items are resolved (2026-08-26)** — see [resolved.md](resolved.md). The two
+remaining physical teardown steps live outside this repo: the Cloudflare `hub` CNAME (owner) and the
+LAN `prowl-hub-postgres` container / compose dir (`prowl-infra-hub` INFRA-070).
 
 ## Completed
 
