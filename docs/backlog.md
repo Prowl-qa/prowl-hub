@@ -16,9 +16,6 @@
 
 ## Low Priority
 
-{PQH-002} **HUB-010: Server-Side Filtering (500+ hunts)**
-   Move search/filter/pagination to server-side via `searchParams` when catalog exceeds 500 hunts. Server component reads `?q=&category=&page=`, filters and slices server-side. Search input becomes a GET form or debounced `router.push`.
-
 ## Sunset Work Items
 
 Decision (2026-08-26): **retire Prowl Hub.** A standalone "download a YAML file" marketplace has

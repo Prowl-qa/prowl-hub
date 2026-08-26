@@ -134,3 +134,7 @@
 ## ~~PQH-014 / HUB-023: Create the missing cross-repo sunset items~~
 **Resolved**: 2026-08-26
 **Description**: Created `prowl-web` PQW-025 (Community.tsx, products.ts, `/hub` redirect, blog link, the three `.prowl/hunts` that assert a hub link) and `prowl-infra-hub` INFRA-070 (README/footer/hello.yml links + the `infrastructure/prowl-hub-postgres/` compose dir; notes that the INFRA-073 id referenced by `prowl-code-review` does not exist). Corrected the "32" template count in `prowl` PROWL-072 to 23. `prowl-code-review-docs` needs no item — that site is itself being retired (`prowl-code-review` item 68), and item 71 there already drops `prowl-hub` from the runner rollout. Workspace `CLAUDE.md` repo-map row is left for the archive pass (HUB-019).
+
+## ~~PQH-002 / HUB-010: Server-Side Filtering (500+ hunts)~~
+**Resolved**: 2026-08-26 (won't do — superseded by the Sunset Work Items)
+**Description**: Closed without implementation: Prowl Hub is retired and the catalog (23 hunts) moved into the CLI, so a 500-hunt server-side filtering path will never be needed here.
