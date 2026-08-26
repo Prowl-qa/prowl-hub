@@ -1,5 +1,10 @@
 # AGENTS.md instructions for prowl-hub
 
+> **Frozen (2026-08):** this repository is retired and archived read-only. Do not add features,
+> accept submissions, or change hunt files here — the templates live in `prowl-tools/prowl`
+> under `templates/` (see `MIGRATED.md`). The security rules below remain in force for anyone
+> reading historical submissions.
+
 ## Project Snapshot
 - **Purpose**: Community hub for reusable Prowl hunt templates.
 - **Visibility rule**: Only verified hunts are shown in the UI.

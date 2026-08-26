@@ -1,5 +1,12 @@
 # Prowl Hub
 
+> **⚠️ Retired (2026-08).** Prowl Hub is no longer maintained and this repository is archived
+> read-only. Its hunt templates now ship **inside the Prowl CLI** — run `prowl templates list`
+> and `prowl init --template <category/name>` (see
+> [`prowl-tools/prowl`](https://github.com/prowl-tools/prowl) and the
+> [Starter Templates docs](https://docs.prowl.tools/starter-templates)). The old → new path
+> map is in [`MIGRATED.md`](MIGRATED.md). Nothing here is deleted; nothing here is updated.
+
 Community-driven hunt templates for [Prowl](https://github.com/prowl-tools/prowl), plus a web interface for discovering, previewing, downloading, and contributing hunts.
 
 ## What Prowl Hub Is

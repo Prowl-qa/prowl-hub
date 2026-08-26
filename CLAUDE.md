@@ -1,5 +1,10 @@
 # CLAUDE.md — Prowl Hub
 
+> **Frozen (2026-08):** this repository is retired and archived read-only. Do not add features,
+> accept submissions, or change hunt files here — the templates live in `prowl-tools/prowl`
+> under `templates/` (see `MIGRATED.md`). The security rules below remain in force for anyone
+> reading historical submissions.
+
 > Workspace-wide conventions (mission, branding, repo map, stack baseline, git/backlog policy)
 > live in the **workspace `CLAUDE.md`** (`../../CLAUDE.md`) and load automatically. This file
 > covers only what is specific to `prowl-hub` — most importantly the security rules below.
