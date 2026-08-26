@@ -45,6 +45,9 @@ steps:
       selector: "[role='dialog'] pre"
       timeout: 5000
 
+  - assert:
+      visible: "{{EXPECTED_CONTENT}}"
+
   # Action button should be present
   - assert:
       visible: "{{ACTION_TEXT}}"

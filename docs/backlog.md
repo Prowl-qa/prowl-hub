@@ -1,7 +1,7 @@
 # Prowl Hub - Product Backlog
 
 **Repo**: `prowl-tools/prowl-hub`
-**Stack**: Next.js + YAML templates + GitHub Actions CI
+**Stack**: Next.js + YAML templates + historical GitHub Actions CI
 **License**: Apache 2.0
 
 ---
@@ -23,9 +23,9 @@
 Decision (2026-08-26): **retire Prowl Hub.** A standalone "download a YAML file" marketplace has
 no organic pull (zero users, no submissions, last product work 2026-06), it makes the owner the
 moderator of an untrusted-YAML queue, and its one real asset — the hunt templates — is worth
-more shipped *inside* the CLI (`prowl init --template`) than on a separate site. Nothing is
-deleted: the repo is archived read-only and the templates move to `prowl`. Existing open item
-HUB-010 is superseded by this section.
+more shipped *inside* the CLI (`prowl init --template`) than on a separate site. Historical
+templates are preserved here for reference while the repo is frozen pending archive, and the
+templates move to `prowl`. Existing open item HUB-010 is superseded by this section.
 
 **State audit (2026-08-26)** — facts every item below relies on:
 - Repo is **not yet archived** (`isArchived: false`); no open PRs/issues; `main` unprotected.

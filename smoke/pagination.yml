@@ -55,5 +55,9 @@ steps:
   - click:
       selector: "{{PREV_SELECTOR}}"
 
+  - waitForUrl:
+      value: "{{PAGE_URL}}"
+      timeout: 3000
+
 assertions:
   - noConsoleErrors: true
