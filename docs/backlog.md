@@ -16,6 +16,8 @@
 
 ## Low Priority
 
+*No active items.*
+
 ## Sunset Work Items
 
 Decision (2026-08-26): **retire Prowl Hub.** A standalone "download a YAML file" marketplace has
